@@ -52,10 +52,13 @@ def main():
 
     data_dir = os.path.abspath('./data')
     bgdir = data_dir + '/chrom'
-    # gene_names_bed_path = wrkdir + '/bed/genename.bed'
     gene_names_bed_path = data_dir + '/genename.bed'
-    # seq_fasta_dir = '/lab/jain_imaging/genomes/hg40.primary_STAR/fasta_stripped/'
     seq_fasta_dir = data_dir + '/fasta/'
+
+    ## Lab filesystem paths
+    # bgdir = "/lab/jain_imaging/Kelsey/Sequencing/20220826_NovaSeq/ANALYSIS/bedGraph/chrom"
+    # gene_names_bed_path = wrkdir + '/bed/genename.bed'
+    # seq_fasta_dir = '/lab/jain_imaging/genomes/hg40.primary_STAR/fasta_stripped/'
 
     # Input variables and coordinates.
     # Ideally we'd want the option for at least 2 start/end coords so that they can look at structures over intron/exon junctions.
