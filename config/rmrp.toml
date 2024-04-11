@@ -1,13 +1,13 @@
 [general]
-AOI = "RMRP"
+AOI = RMRP
 
 [chromosome]
-user_chr = "9"
+user_chr = 9
 
 [coordinates]
-coord_opt = "1"
-start_coord1 = "35657753"
-end_coord1 = "35658017"
+coord_opt = 1
+start_coord1 = 35657753
+end_coord1 = 35658017
 
 [strand]
-choice = "-"
+choice = -
