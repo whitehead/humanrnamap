@@ -1,13 +1,13 @@
 [general]
-AOI = "JUN"
+AOI = JUN
 
 [chromosome]
-user_chr = "1"
+user_chr = 1
 
 [coordinates]
-coord_opt = "1"
-start_coord1 = "58780790"
-end_coord1 = "58784047"
+coord_opt = 1
+start_coord1 = 58780791
+end_coord1 = 58784048
 
 [strand]
-choice = "-"
+choice = -

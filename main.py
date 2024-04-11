@@ -7,8 +7,19 @@ import seaborn as sns
 import svgutils.transform as sg
 import sys
 import shutil
+import configparser
+import argparse
+
 
 def main():
+    # Commandline argument parsing
+    parser = argparse.ArgumentParser(description="Specify the configuration file")
+    parser.add_argument('--config', '-c', type=str, required=True, help='The configuration file to use')
+    args = parser.parse_args()
+
+    # Read the TOML configuration file
+    config = configparser.ConfigParser()
+    config.read(args.config)
 
     # Ensure the binaries we will need are installed and in the path.
     fold_bin_path = abs_binary_path("Fold")
@@ -44,7 +55,11 @@ def main():
     #Input variables and coordinates. 
     #Ideally we'd want the option for at least 2 start/end coords so that they can look at structures over intron/exon junctions.
     #obtain string of title from user
-    AOI = input('input a title for your area of interest: ')
+    # Get the input variables from the configuration file if they are set, otherwise use user input
+    if config.has_option('general', 'AOI'):
+        AOI = config.get('general', 'AOI')
+    else:
+        AOI = input('input a title for your area of interest: ')
 
     #obtain list of possible chromosome inputs from user
     lst = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y', 'M']
@@ -52,7 +67,10 @@ def main():
     active = True
     while active:
         #take in chromosome number or letter from user
-        user_chr = input('input the chromosome number, X, Y, or M (hg38): ')
+        if config.has_option('chromosome', 'user_chr'):
+            user_chr = config.get('chromosome', 'user_chr')
+        else:
+            user_chr = input('input the chromosome number, X, Y, or M (hg38): ')
         #set an if statement if the user inputs a lowercase letter for x, y, m. create list of letters
         if user_chr in ['x', 'y', 'm']:
             #turn lowercase letter into uppercase letter
@@ -61,8 +79,7 @@ def main():
             active = False
         #create an elif statement for an invalid input to reloop
         elif user_chr not in lst:
-            print('invalid input.')
-            active
+            print(f"Invalid input {user_chr}. Please enter a valid chromosome number or letter.")
     #create an statement to break loop
         else:
             active = False
@@ -124,14 +141,20 @@ def main():
     working = True
     while working: #for coordinate set options
         #take in user input for coordinate set option
-        coord_opt = input('would you like to enter 1 or 2 sets of coordinates: ')
+        if config.has_option('coordinates', 'coord_opt'):
+            coord_opt = config.get('coordinates', 'coord_opt')
+        else:
+            coord_opt = input('would you like to enter 1 or 2 sets of coordinates: ')
         #create an if statement for 1 set of coordinate 
         if coord_opt == '1':
             #set running equal to true for while loop
             running = True
             while running: #option 1 starting coordinates
                 #take in coordinate as a string from user
-                start_coord = input('input the starting coordinate (hg38): ')
+                if config.has_option('coordinates', 'start_coord1'):
+                    start_coord = config.get('coordinates', 'start_coord1')
+                else:
+                    start_coord = input('input the starting coordinate (hg38): ')
                 #create a list of individual strings for each character
                 s_nums = [x for x in start_coord]
                 #create a while loop to remove commas from user input
@@ -160,7 +183,10 @@ def main():
             executing = True
             while executing: #option 1 ending coordinates
                 #take in coordinate as a string from user
-                end_coord = input('input the ending coordinate (hg38): ')
+                if config.has_option('coordinates', 'end_coord1'):
+                    end_coord = config.get('coordinates', 'end_coord1')
+                else:
+                    end_coord = input('input the ending coordinate (hg38): ')
                 #create a list of individual strings for each character
                 e_nums = [x for x in end_coord]
                 #create a while loop to remove commas from user input
@@ -201,7 +227,10 @@ def main():
             playing = True
             while playing: #option 2 first set of starting coordinates
                 #take in coordinate as a string from user
-                start_coord1 = input('input the first starting coordinate (hg38): ')
+                if config.has_option('coordinates', 'start_coord1'):
+                    start_coord1 = config.get('coordinates', 'start_coord1')
+                else:
+                    start_coord1 = input('input the starting coordinate (hg38): ')
                 #create a list of individual strings for each character
                 s_nums1 = [x for x in start_coord1]
                 #create a while loop to remove commas from user input
@@ -230,7 +259,10 @@ def main():
             active = True
             while active: #option 2 first set of ending coordinates
                 #take in coordinate as a string from user
-                end_coord1 = input('input the first ending coordinate (hg38): ')
+                if config.has_option('coordinates', 'end_coord1'):
+                    end_coord1 = config.get('coordinates', 'end_coord1')
+                else:
+                    end_coord1 = input('input the ending coordinate (hg38): ')
                 #create a list of individual strings for each character
                 e_nums1 = [x for x in end_coord1]
                 #create a while loop to remove commas from user input
@@ -268,7 +300,10 @@ def main():
             alert = True
             while alert: #option 2 second starting coordinate
                 #take in coordinate as a string from user
-                start_coord2 = input('input the second starting coordinate: ')
+                if config.has_option('coordinates', 'start_coord1'):
+                    start_coord2 = config.get('coordinates', 'start_coord1')
+                else:
+                    start_coord2 = input('input the second starting coordinate: ')
                 #create a list of individual strings for each character
                 s_nums2 = [x for x in start_coord2]
                 #create a while loop to remove commas from user input
@@ -296,7 +331,10 @@ def main():
             conducting = True
             while conducting: #option 2 second set ending coordinate
                 #take in coordinate as a string from user
-                end_coord2 = input('input the second ending coordinate: ')
+                if config.has_option('coordinates', 'end_coord1'):
+                    end_coord2 = config.get('coordinates', 'end_coord1')
+                else:
+                    end_coord2 = input('input the second ending coordinate: ')
                 #create a list of individual strings for each character
                 e_nums2 = [x for x in end_coord2]
                 #create a while loop to remove commas from user input
@@ -339,7 +377,10 @@ def main():
     managing = True
     while managing: #option two stranded options
         #take in user input 
-        choice = input('enter a "+" for a positive strand and a "-" for a negative strand: ') #pos or neg strand
+        if config.has_option('strand', 'choice'):
+            choice = config.get('strand', 'choice')
+        else:
+            choice = input('enter a "+" for a positive strand and a "-" for a negative strand: ')
         #create an if statement for positive strand 
         if (choice == "+"):
             strand = 'pos'
@@ -352,7 +393,7 @@ def main():
             managing = False
         #create an else statement for incorrect input
         else:
-            print('invalid input. try again.')
+            print(f"Invalid input {choice}. Please enter a valid strand. (Either + or -)")
             #reloop through while to prompt user to input another value
             managing
 
@@ -676,7 +717,9 @@ def main():
     FE_lines = open(fold_FEdir + '/' + AOI + '.txt')
     struct_num = len(FE_lines.readlines())
     print('this area of interest has', struct_num, 'structures. how many would you like to visualize? : ')
-    user_int = int(input())
+    #user_int = int(input()) # prompt the user for how many
+    user_int = 1 # visualize the first one
+    user_int = struct_num # visualize them all
     for x in range(1, user_int + 1):
         user_struct = str(x)
         FE_lines2 = open(fold_FEdir + '/' + AOI + '.txt')
