@@ -1,6 +1,12 @@
 ## Pre-requisites
 
 - Python 3.11 or higher
+- VARNA
+   https://varna.lisn.upsaclay.fr/
+   ```bash
+   wget https://varna.lisn.upsaclay.fr/bin/VARNAv3-93.jar
+   ```
+
 - RNAstructure - efn2, Fold, ct2dot
    https://rna.urmc.rochester.edu/RNAstructureDownload.html
    efn2: Version 6.4 (December 8, 2021).
@@ -16,6 +22,7 @@
    cp exe/Fold ../bin/.
    cp exe/efn2 ../bin/.
    cp exe/ct2dot ../bin/.
+   cp -r data_tables ../bin/.
    ```
 
 ## Installation
