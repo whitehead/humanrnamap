@@ -1,2 +1,3 @@
-export PATH="./bin:$PATH"
 source venv/bin/activate
+export DATAPATH=$(realpath ./RNAstructure/data_tables)
+export PATH="./bin:$PATH"
