@@ -618,7 +618,7 @@ if max(RNAstructure['D']) >= 0.2 and len(gene_strand) < 40:
 RNAstructure.reset_index(drop=True, inplace=True)
 
 #use fill na to change values to -999
-RNAstructure['D'].fillna(-999, inplace=True) 
+RNAstructure['D'] = RNAstructure['D'].fillna(-999)
 
 seq = ''.join(RNAstructure.ref.tolist()) #creates a string with all bases included in the region
 
