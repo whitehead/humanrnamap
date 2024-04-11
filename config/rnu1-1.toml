@@ -1,0 +1,13 @@
+[general]
+AOI = "RNU1-1"
+
+[chromosome]
+user_chr = "1"
+
+[coordinates]
+coord_opt = "1"
+start_coord1 = "16514122"
+end_coord1 = "16514128"
+
+[strand]
+choice = "-"

@@ -1,0 +1,15 @@
+[general]
+AOI = "Example Area of Interest"
+
+[chromosome]
+user_chr = "X"
+
+[coordinates]
+coord_opt = "2"
+start_coord1 = "12345"
+end_coord1 = "23456"
+start_coord2 = "34567"
+end_coord2 = "45678"
+
+[strand]
+choice = "+"

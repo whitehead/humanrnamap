@@ -1,0 +1,13 @@
+[general]
+AOI = "RNU12 (small region)"
+
+[chromosome]
+user_chr = "22"
+
+[coordinates]
+coord_opt = "1"
+start_coord1 = "42615243"
+end_coord1 = "42615293"
+
+[strand]
+choice = "+"

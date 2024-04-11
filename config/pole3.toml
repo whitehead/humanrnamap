@@ -1,0 +1,13 @@
+[general]
+AOI = "POLE3"
+
+[chromosome]
+user_chr = "9"
+
+[coordinates]
+coord_opt = "1"
+start_coord1 = "113407234"
+end_coord1 = "113410675"
+
+[strand]
+choice = "-"

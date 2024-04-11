@@ -1,0 +1,13 @@
+[general]
+AOI = "JUN"
+
+[chromosome]
+user_chr = "1"
+
+[coordinates]
+coord_opt = "1"
+start_coord1 = "58780790"
+end_coord1 = "58784047"
+
+[strand]
+choice = "-"
