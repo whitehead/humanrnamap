@@ -568,17 +568,16 @@ def rev_strand(df):
 if strand == 'neg':
     RNAstructure.sort_values('pos', ascending = False, inplace=True)
     RNAstructure.reset_index(drop=True, inplace=True) #reverses the order
-    for i in range(0, len(RNAstructure)): #replace with their complements
-        if RNAstructure['ref'][i] == "A":
-            RNAstructure['ref'][i] = 'U'
-        elif RNAstructure['ref'][i] == 'T':
-            RNAstructure['ref'][i] = 'A'
-        elif RNAstructure['ref'][i] == 'G':
-            RNAstructure['ref'][i] = 'C'
-        elif RNAstructure['ref'][i] == 'C':
-            RNAstructure['ref'][i] = 'G'
-    
-elif strand == 'pos': #for the pos strand, the order and complement of the sequence is fine, but T must be replaced with U 
+    for i in range(0, len(RNAstructure)): # replace with thier complements
+        if RNAstructure.loc[i, 'ref'] == "A":
+            RNAstructure.loc[i, 'ref'] = 'U'
+        elif RNAstructure.loc[i, 'ref'] == 'T':
+            RNAstructure.loc[i, 'ref'] = 'A'
+        elif RNAstructure.loc[i, 'ref'] == 'G':
+            RNAstructure.loc[i, 'ref'] = 'C'
+        elif RNAstructure.loc[i, 'ref'] == 'C':
+            RNAstructure.loc[i, 'ref'] = 'G'
+elif strand == 'pos': #for the pos strand, the order and complement of the sequence is fine, but T must be replaced with U
     RNAstructure.reset_index(inplace=True, drop=True)
     for i in range (0, len(RNAstructure)):
         if RNAstructure['ref'][i] == 'T':
