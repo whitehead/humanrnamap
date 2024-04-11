@@ -11,8 +11,30 @@ import configparser
 import argparse
 import subprocess
 
+import time
+import psutil
+
+import stream_bed_file
+
+# Initialize variables to store the start time and previous call time
+start_time = time.time()
+previous_call_time = start_time
+
+def log_timing_and_memory(msg):
+    global previous_call_time
+    current_time = time.time()
+    elapsed_time = current_time - previous_call_time
+    process_id = os.getpid()
+    process = psutil.Process(process_id)
+    memory_info = process.memory_info()
+    memory_usage_mb = memory_info.rss / (1024 * 1024)
+    print(f"{msg} - Elapsed time since the previous call: {elapsed_time:.2f} seconds")
+    print(f"{msg} - Current memory usage: {memory_usage_mb:.2f} MB")
+    previous_call_time = current_time
+
 
 def main():
+    log_timing_and_memory("first")
     # Commandline argument parsing
     parser = argparse.ArgumentParser(description="Specify the configuration file")
     parser.add_argument('--config', '-c', type=str, required=True, help='The configuration file to use')
@@ -54,6 +76,8 @@ def main():
     bgdir = data_dir + '/chrom'
     gene_names_bed_path = data_dir + '/genename.bed'
     seq_fasta_dir = data_dir + '/fasta/'
+
+    log_timing_and_memory("setup complete")
 
     ## Lab filesystem paths
     # bgdir = "/lab/jain_imaging/Kelsey/Sequencing/20220826_NovaSeq/ANALYSIS/bedGraph/chrom"
@@ -406,8 +430,11 @@ def main():
             # reloop through while to prompt user to input another value
             managing
 
+    log_timing_and_memory("config complete")
+
     # read canonical bed file under the variable anno
     anno = pd.read_csv(gene_names_bed_path, sep='\t')
+    log_timing_and_memory("read annotations")
     # create an empty gene list
     gene_list = []
     # create an if condition for gene name if there is only 1 set of coordinates
@@ -466,59 +493,17 @@ def main():
         if strand == 'pos':
             # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            D1 = (pd.read_csv('D1_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D1'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D1 = D1.loc[D1['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D1
-
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D2 column for coverage
-            D2 = (pd.read_csv('D2_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D2'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D2 = D2.loc[D2['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D2
-
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D3 column for coverage
-            D3 = (pd.read_csv('D3_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D3'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D3 = D3.loc[D3['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D3
+            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
 
         # create an if statement for when the stand is negative
         if strand == 'neg':
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            D1 = (pd.read_csv('D1_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D1'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D1 = D1.loc[D1['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D1
-
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D2 column for coverage
-            D2 = (pd.read_csv('D2_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D2'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D2 = D2.loc[D2['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D2
-
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D3 column for coverage
-            D3 = (pd.read_csv('D3_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D3'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            gene_D3 = D3.loc[D3['pos'].between(f_s, f_e)].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D3
+            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
 
     # create an elif for when user slects to have two sets of coordinates
     elif coord_opt == '2':
@@ -526,44 +511,17 @@ def main():
         if strand == 'pos':
             # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            D1 = (pd.read_csv('D1_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D1'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D1 = D1.loc[(D1['pos'].between(f_s1, f_e1)) | (D1['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            del D1
-
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D2 column for coverage
-            D2 = (pd.read_csv('D2_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D2'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D2 = D2.loc[(D2['pos'].between(f_s1, f_e1)) | (D2['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D2
-
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D3 column for coverage
-            D3 = (pd.read_csv('D3_' + chrom + '_mmRate_pos.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D3'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D3 = D3.loc[(D3['pos'].between(f_s1, f_e1)) | (D3['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D3
+            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
 
         # create an if statement for when the strand is negative
         if strand == 'neg':
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            D1 = (pd.read_csv('D1_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D1'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D1 = D1.loc[(D1['pos'].between(f_s1, f_e1)) | (D1['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D1
+            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
 
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D2 column for coverage
@@ -590,6 +548,7 @@ def main():
     gene_strand['pos'] = gene_D1['pos']
     # obtaiin the average of the 3 samples to represent D
     gene_strand['D'] = (gene_D1['D1'] + gene_D2['D2'] + gene_D3['D3']) / 3
+    log_timing_and_memory("average replicates")
 
     # read in fasta file for sequence and add ref column to df
     abs_seq_file_path = os.path.abspath(f"{seq_fasta_dir}{chrom}.fasta")
@@ -599,6 +558,7 @@ def main():
     seq = seq.strip()
     seq_list = [letter for letter in seq]
     seq_file.close()
+    log_timing_and_memory("write fasta")
 
     # this function removes the top 5% of outliers and scales that output to a max of 1
     def winsor_scale(col):
@@ -732,15 +692,18 @@ def main():
     # only uses the coord and condition-average reactivity columns
     # use rnastrusture to create a .dat file using RNAstructure df
     RNAstructure.to_csv(AOI + '_D.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
+    log_timing_and_memory("write dat")
 
     # attach sample name to all files
     # fold command line
     run(fold_bin_path + ' ' + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
     # os.system(fold_bin_path + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
     # os.system(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
     run(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
     FE_lines = open(fold_FEdir + '/' + AOI + '.txt')
@@ -761,6 +724,7 @@ def main():
         # ct2dot ct to djbn (fold)
         # os.system(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
         run(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+        log_timing_and_memory("ct2dot")
 
         # obtain coverage percentage
         d = len(gene_strand) / len(RNAstructure)
