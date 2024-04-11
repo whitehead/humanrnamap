@@ -84,7 +84,7 @@ elif user_chr == '7':
 elif user_chr == '8':
     cmax = 145138636
 elif user_chr == '9':
-    cmax = 138394717         
+    cmax = 138394717
 elif user_chr == '10':
     cmax = 133797422
 elif user_chr == '11':
@@ -96,7 +96,7 @@ elif user_chr == '13':
 elif user_chr == '14':
     cmax = 107043718
 elif user_chr == '15':
-    cmax = 101991189  
+    cmax = 101991189
 elif user_chr == '16':
     cmax = 90338345
 elif user_chr == '17':
@@ -104,13 +104,13 @@ elif user_chr == '17':
 elif user_chr == '18':
     cmax =  80373285
 elif user_chr == '19':
-    cmax = 58617616  
+    cmax = 58617616
 elif user_chr == '20':
     cmax = 64444167
 elif user_chr == '21':
-    cmax = 46709983 
+    cmax = 46709983
 elif user_chr == '22':
-    cmax = 50818468   
+    cmax = 50818468
 elif user_chr == 'X':
     cmax = 156040895
 elif user_chr == 'Y':
@@ -129,7 +129,7 @@ while working: #for coordinate set options
         running = True
         while running: #option 1 starting coordinates
             #take in coordinate as a string from user
-            start_coord = input('input the starting coordinate (hg38): ') 
+            start_coord = input('input the starting coordinate (hg38): ')
             #create a list of individual strings for each character
             s_nums = [x for x in start_coord]
             #create a while loop to remove commas from user input
@@ -197,9 +197,9 @@ while working: #for coordinate set options
     #create an elif statement if the user wants to input two sets of coordinates
     elif coord_opt == '2':
         playing = True
-        while playing: #option 2 first set of starting coordinates 
+        while playing: #option 2 first set of starting coordinates
             #take in coordinate as a string from user
-            start_coord1 = input('input the first starting coordinate (hg38): ') 
+            start_coord1 = input('input the first starting coordinate (hg38): ')
             #create a list of individual strings for each character
             s_nums1 = [x for x in start_coord1]
             #create a while loop to remove commas from user input
@@ -266,7 +266,7 @@ while working: #for coordinate set options
         alert = True
         while alert: #option 2 second starting coordinate
             #take in coordinate as a string from user
-            start_coord2 = input('input the second starting coordinate: ') 
+            start_coord2 = input('input the second starting coordinate: ')
             #create a list of individual strings for each character
             s_nums2 = [x for x in start_coord2]
             #create a while loop to remove commas from user input
@@ -397,7 +397,7 @@ if coord_opt == '2':
         print('based on canonical annotations, the following genes are in your area of interest: ', total)
     #set condition when there aren't any genes in the area of interest
     elif len(gene_list) == 0:
-        print('based on canonical annotations, there are not any genes in your area of interest.')    
+        print('based on canonical annotations, there are not any genes in your area of interest.')
 
 #change directory to folder with pileups
 os.chdir(bgdir)
@@ -408,7 +408,7 @@ if coord_opt == '1':
     if strand == 'pos':
         #make the positive bedgraph file for the respective chromosome a data frame and iterate through it 
         #drop the start column and only include the pos for the coordinates and D1 column for coverage 
-        D1 = (pd.read_csv('D1_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D1'])).drop(columns=['start']) 
+        D1 = (pd.read_csv('D1_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D1'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D1 = D1.loc[D1['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -416,7 +416,7 @@ if coord_opt == '1':
 
         #make the positive bedgraph file for the respective chromosome a data frame and iterate through it
         #drop the start column and only include the pos for the coordinates and D2 column for coverage 
-        D2 = (pd.read_csv('D2_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D2'])).drop(columns=['start']) 
+        D2 = (pd.read_csv('D2_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D2'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D2 = D2.loc[D2['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -424,7 +424,7 @@ if coord_opt == '1':
 
         #make the positive bedgraph file for the respective chromosome a data frame and iterate through it
         #drop the start column and only include the pos for the coordinates and D3 column for coverage 
-        D3 = (pd.read_csv('D3_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D3'])).drop(columns=['start']) 
+        D3 = (pd.read_csv('D3_' + chrom + '_mmRate_pos.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D3'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D3 = D3.loc[D3['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -434,7 +434,7 @@ if coord_opt == '1':
     if strand == 'neg':
         #make the negative bedgraph file for the respective chromosome a data frame and iterate through it
         #drop the start column and only include the pos for the coordinates and D1 column for coverage
-        D1 = (pd.read_csv('D1_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D1'])).drop(columns=['start']) 
+        D1 = (pd.read_csv('D1_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D1'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D1 = D1.loc[D1['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -442,7 +442,7 @@ if coord_opt == '1':
 
         #make the negative bedgraph file for the respective chromosome a data frame and iterate through it
         #drop the start column and only include the pos for the coordinates and D2 column for coverage
-        D2 = (pd.read_csv('D2_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D2'])).drop(columns=['start']) 
+        D2 = (pd.read_csv('D2_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D2'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D2 = D2.loc[D2['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -450,7 +450,7 @@ if coord_opt == '1':
 
         #make the negative bedgraph file for the respective chromosome a data frame and iterate through it
         #drop the start column and only include the pos for the coordinates and D3 column for coverage
-        D3 = (pd.read_csv('D3_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D3'])).drop(columns=['start']) 
+        D3 = (pd.read_csv('D3_' + chrom + '_mmRate_neg.bedGraph', sep = '\t', header = None, names = ['start', 'pos','D3'])).drop(columns=['start'])
         #splice the data frame to only include the region the user entered
         gene_D3 = D3.loc[D3['pos'].between(f_s, f_e)].reset_index(drop=True)
         #delete the unspliced sample from the data drame
@@ -533,7 +533,7 @@ seq_file.close()
 #this function removes the top 5% of outliers and scales that output to a max of 1
 def winsor_scale(col):
     arr = np.array(col)
-    win_arr = winsorize(arr, limits = [0.00, 0.05]).data #winsorize with limits of 0%, 95%. 
+    win_arr = winsorize(arr, limits = [0.00, 0.05]).data #winsorize with limits of 0%, 95%.
     #FOR VERY SMALL WINDOWS, WE WILL NEED TO SHOW A WARNING IF THE HIGHEST VALLUE IS AN OUTLIER.
     norm_arr = (win_arr - win_arr.min())/(win_arr.max() - win_arr.min()) #scale to 1
     return norm_arr
@@ -684,8 +684,8 @@ for x in range(1, user_int + 1):
     s_num = ttl2[1]
     energy = ' '.join(ttl2[4:])
     #obtain dbn file for specified structure
-    #ct2dot ct to dbn (fold)
-    os.system('ct2dot ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+    #ct2dot ct to djbn (fold)
+    os.system(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
 
     #obtain coverage percentage 
     d = len(gene_strand)/len(RNAstructure)
