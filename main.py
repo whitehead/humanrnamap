@@ -6,19 +6,38 @@ from scipy.stats.mstats import winsorize
 import seaborn as sns
 import svgutils.transform as sg
 import sys
+import shutil
+
 
 #create variables for the paths do different files 
-wkdir = '/lab/jain_imaging/Alina/'
-fastadir = wkdir + 'fasta'
-datdir = wkdir + 'dat'
-pfsdir = wkdir + 'pfs'
-ctdir = wkdir + 'ct'
-cmapdir = wkdir + 'cmap'
-fold_dbndir = wkdir + 'fold_dbn'
-final_image = wkdir + 'final_image'
-fold_FEdir = wkdir + 'fold_FE'
-bgdir = '/lab/jain_imaging/Kelsey/Sequencing/20220826_NovaSeq/ANALYSIS/bedGraph/chrom'
-barplotdir = wkdir + 'barplot'
+wkdir = os.path.abspath('./out/')
+fastadir = wkdir + '/fasta'
+datdir = wkdir + '/dat'
+pfsdir = wkdir + '/pfs'
+ctdir = wkdir + '/ct'
+cmapdir = wkdir + '/cmap'
+fold_dbndir = wkdir + '/fold_dbn'
+final_image = wkdir + '/final_image'
+fold_FEdir = wkdir + '/fold_FE'
+barplotdir = wkdir + '/barplot'
+
+def ensure_directories_exist(directories):
+    for directory in directories:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+directories = [ wkdir, fastadir, datdir, pfsdir, ctdir,
+    cmapdir, fold_dbndir, final_image, fold_FEdir, barplotdir ]
+
+ensure_directories_exist(directories)
+
+
+data_dir = os.path.abspath('./data')
+bgdir = data_dir + '/chrom'
+#gene_names_bed_path = wrkdir + '/bed/genename.bed'
+gene_names_bed_path = data_dir + '/genename.bed'
+#seq_fasta_dir = '/lab/jain_imaging/genomes/hg40.primary_STAR/fasta_stripped/'
+seq_fasta_dir = data_dir + '/fasta/'
 
 #Input variables and coordinates. 
 #Ideally we'd want the option for at least 2 start/end coords so that they can look at structures over intron/exon junctions.
@@ -336,11 +355,11 @@ while managing: #option two stranded options
         managing
 
 #read canonical bed file under the variable anno
-anno = pd.read_csv(wkdir + '/beds/genename.bed', sep = '\t')
+anno = pd.read_csv(gene_names_bed_path, sep = '\t')
 #create an empty gene list
 gene_list = []
 #create an if condition for gene name if there is only 1 set of coordinates
-if coord_opt == '1': 
+if coord_opt == '1':
     #iterate through the data frame to find gene that satisfies all user inputs.
     for i in range(0, len(anno)):
         if (((((anno['start'][i] < f_s) & (anno['end'][i] >= f_s)) | ((anno['start'][i] < f_e) & (anno['end'][i] >= f_e)))) & ((anno['chrom'][i] == chrom) & (anno['strand'][i] == choice))):
@@ -503,7 +522,8 @@ gene_strand['pos'] = gene_D1['pos']
 gene_strand['D'] = (gene_D1['D1'] + gene_D2['D2'] + gene_D3['D3']) / 3
 
 # read in fasta file for sequence and add ref column to df
-seq_file = open('/lab/jain_imaging/genomes/hg38.primary_STAR/fasta_stripped/' + chrom + '.fasta')
+abs_seq_file_path = os.path.abspath(f"{seq_fasta_dir}{chrom}.fasta")
+seq_file = open(abs_seq_file_path)
 seq_lines = seq_file.readlines()
 seq = seq_lines[1]
 seq = seq.strip()
@@ -640,14 +660,15 @@ os.chdir(datdir)
 #save the .dat file(s)
 #only uses the coord and condition-average reactivity columns
 #use rnastrusture to create a .dat file using RNAstructure df
-RNAstructure.to_csv(AOI + '_D.dat', sep='\t', header=False, index=False, columns = ['coord', 'D']) 
+RNAstructure.to_csv(AOI + '_D.dat', sep='\t', header=False, index=False, columns = ['coord', 'D'])
 
 #attach sample name to all files
 #fold command line
-os.system('Fold ' + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
+os.system(fold_bin_path + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
 
 #run command to obtain free folding energy
-os.system('efn2 ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
+
+os.system(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
 
 #read the number of lines in the energy file to display the amount of structures to the user
 FE_lines = open(fold_FEdir + '/' + AOI + '.txt')
