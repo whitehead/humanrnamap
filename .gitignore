@@ -3,3 +3,4 @@ tags
 venv
 bin/*
 RNAstructure
+out/*
