@@ -10,11 +10,9 @@ import shutil
 import configparser
 import argparse
 import subprocess
-
+import csv
 import time
 import psutil
-
-import stream_bed_file
 
 # Initialize variables to store the start time and previous call time
 start_time = time.time()
@@ -493,17 +491,17 @@ def main():
         if strand == 'pos':
             # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
 
         # create an if statement for when the stand is negative
         if strand == 'neg':
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
 
     # create an elif for when user slects to have two sets of coordinates
     elif coord_opt == '2':
@@ -511,37 +509,18 @@ def main():
         if strand == 'pos':
             # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
 
         # create an if statement for when the strand is negative
         if strand == 'neg':
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_bed_file.filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D2 = stream_bed_file.filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D3 = stream_bed_file.filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
 
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D2 column for coverage
-            D2 = (pd.read_csv('D1_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D2'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D2 = D2.loc[(D2['pos'].between(f_s1, f_e1)) | (D2['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D2
-
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D3 column for coverage
-            D3 = (pd.read_csv('D3_' + chrom + '_mmRate_neg.bedGraph', sep='\t', header=None,
-                              names=['start', 'pos', 'D3'])).drop(columns=['start'])
-            # splice the data frame to only include the region the user entered
-            # for two corrdinates, ensure and operator splices for each coordinate set
-            gene_D3 = D3.loc[(D3['pos'].between(f_s1, f_e1)) | (D3['pos'].between(f_s2, f_e2))].reset_index(drop=True)
-            # delete the unspliced sample from the data drame
-            del D3
     # put them all in one data frame gene_D1, gene_D2, gene_D3
     gene_strand = pd.DataFrame()
     # assign pos based on the pos of the first spliced sample
@@ -552,12 +531,23 @@ def main():
 
     # read in fasta file for sequence and add ref column to df
     abs_seq_file_path = os.path.abspath(f"{seq_fasta_dir}{chrom}.fasta")
+
     seq_file = open(abs_seq_file_path)
-    seq_lines = seq_file.readlines()
-    seq = seq_lines[1]
-    seq = seq.strip()
-    seq_list = [letter for letter in seq]
-    seq_file.close()
+    # seq_lines = seq_file.readlines()
+    # seq = seq_lines[1]
+    # seq = seq.strip()
+    # seq_list = [letter for letter in seq]
+    # seq_file.close()
+
+    def read_specific_position(file_path, start_pos, end_pos):
+        with open(file_path, 'rb') as file:
+            file.readline()  # Skip the first line
+            file.seek(start_pos, 1)  # Skip to the start position from the current position (beginning of second line)
+            data = file.read(end_pos - start_pos)  # Read up to the end position
+            return [char for char in data.decode()]
+
+    read_specific_position_seq = lambda start_pos, end_pos: read_specific_position(abs_seq_file_path, start_pos, end_pos)
+
     log_timing_and_memory("write fasta")
 
     # this function removes the top 5% of outliers and scales that output to a max of 1
@@ -580,7 +570,8 @@ def main():
         # empty coord column
         RNAstructure['coord'] = ''
         # append ref column to RNAstructure to assign base letter to each coordinate
-        RNAstructure['ref'] = seq_list[f_s - 1:f_e]
+        #RNAstructure['ref'] = seq_list[f_s - 1:f_e]
+        RNAstructure['ref'] = read_specific_position_seq(f_s - 1, f_e)
         # merge RNAstructure with gene_strand to append coverage values to RNAstructure
         RNAstructure = RNAstructure.merge(gene_strand, on=['pos'], how='left')
     # create if statement when the user input is two coordinates
@@ -594,7 +585,8 @@ def main():
         # empty coord column
         RNAstructure['coord'] = ''
         # create two_seq to append the sequence from both sets of coordinates
-        two_seq = seq_list[f_s1 - 1:f_e1] + seq_list[f_s2 - 1:f_e2]
+        # two_seq = seq_list[f_s1 - 1:f_e1] + seq_list[f_s2 - 1:f_e2]
+        two_seq = read_specific_position_seq(f_s1 - 1,f_e1) + read_specific_position_seq(f_s2 - 1,f_e2)
         # append two_seq to the df to assign a base letter to each coordinate
         RNAstructure['ref'] = two_seq
         # merge RNAstructure with gene_strand to append coverage values to RNAstructure
@@ -815,6 +807,16 @@ def main():
         # break to avoid infinite loop
         finishing = False
 
+def stream_filter_bedgraph_file(filename, start, end):
+    prefix = filename.split('_')[0]
+    filtered_data = []
+    with open(filename, 'r') as file:
+        reader = csv.reader(file, delimiter='\t')
+        for row in reader:
+            pos = int(row[1])
+            if start <= pos <= end:
+                filtered_data.append({'pos': pos, prefix: float(row[2])})
+    return pd.DataFrame(filtered_data)
 
 def abs_binary_path(name):
     which_path = shutil.which(name)
