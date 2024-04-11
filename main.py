@@ -8,6 +8,17 @@ import svgutils.transform as sg
 import sys
 import shutil
 
+def ensure_binary_exists(name):
+    if shutil.which(name) is None:
+        print(f"Error: The {name} binary was not found. Please ensure it is installed and available in the system's PATH.")
+        sys.exit(1)
+
+fold_bin_path = os.path.abspath(shutil.which("Fold"))
+efn2_bin_path = os.path.abspath(shutil.which("efn2"))
+ct2dot_bin_path = os.path.abspath(shutil.which("ct2dot"))
+ensure_binary_exists(fold_bin_path)
+ensure_binary_exists(efn2_bin_path)
+ensure_binary_exists(ct2dot_bin_path)
 
 #create variables for the paths do different files 
 wkdir = os.path.abspath('./out/')
