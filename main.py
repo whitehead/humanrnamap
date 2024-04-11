@@ -9,6 +9,7 @@ import sys
 import shutil
 import configparser
 import argparse
+import subprocess
 
 
 def main():
@@ -707,11 +708,12 @@ def main():
 
     #attach sample name to all files
     #fold command line
-    os.system(fold_bin_path + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    run(fold_bin_path + ' ' + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    #os.system(fold_bin_path + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
 
     #run command to obtain free folding energy
-
-    os.system(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    #os.system(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    run(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
 
     #read the number of lines in the energy file to display the amount of structures to the user
     FE_lines = open(fold_FEdir + '/' + AOI + '.txt')
@@ -730,7 +732,8 @@ def main():
         energy = ' '.join(ttl2[4:])
         #obtain dbn file for specified structure
         #ct2dot ct to djbn (fold)
-        os.system(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+        #os.system(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+        run(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
 
         #obtain coverage percentage 
         d = len(gene_strand)/len(RNAstructure)
@@ -832,6 +835,17 @@ def ensure_directories_exist(directories):
     for directory in directories:
         if not os.path.exists(directory):
             os.makedirs(directory)
+
+# Run method (system run plus exit error catching)
+def run(cmd):
+    try:
+        # replace the cwd in this command with blank.
+        short_cmd = cmd.replace(os.getcwd()+"/", "")
+        print(f"Running command: {short_cmd}\n")
+        subprocess.run(cmd, shell=True, check=True)
+    except subprocess.CalledProcessError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
 
 # Run if called directly.
 if __name__ == "__main__":
