@@ -5,6 +5,7 @@
    https://varna.lisn.upsaclay.fr/
    ```bash
    wget https://varna.lisn.upsaclay.fr/bin/VARNAv3-93.jar
+   mv VARNAv3-93.jar bin/.
    ```
 
 - RNAstructure - efn2, Fold, ct2dot

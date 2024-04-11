@@ -27,7 +27,7 @@ def main():
     efn2_bin_path = abs_binary_path("efn2")
     ct2dot_bin_path = abs_binary_path("ct2dot")
 
-    varna_path = os.path.abspath('./VARNAv3-93.jar')
+    varna_path = os.path.abspath('./bin/VARNAv3-93.jar')
     if not os.path.exists(varna_path):
         print("VARNA jar file not found. Please download it from http://varna.lri.fr/ and place it in the root directory of this project.")
         sys.exit(1)
