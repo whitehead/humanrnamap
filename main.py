@@ -813,9 +813,9 @@ def stream_filter_bedgraph_file(filename, start, end):
     with open(filename, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
         for row in reader:
-            pos = int(row[1])
+            pos = int(row[2])
             if start <= pos <= end:
-                filtered_data.append({'pos': pos, prefix: float(row[2])})
+                filtered_data.append({'pos': pos, prefix: float(row[3])})
     return pd.DataFrame(filtered_data)
 
 def abs_binary_path(name):
