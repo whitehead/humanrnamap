@@ -1,5 +1,16 @@
 ## Pre-requisites
 
+- Clone this repository
+    ```bash
+    git clone TODO_URL available_structure
+    cd available_structure
+    ```
+- Download our dataset
+    ```bash
+    wget https://zenodo.org/record/5555555/files/available_structure_dataset.tar.gz.EXAMPLE_URL
+    tar xvfz available_structure_dataset.tar.gz 
+    ```
+
 - Python 3.11 or higher
 - VARNA
    https://varna.lisn.upsaclay.fr/
@@ -36,14 +47,9 @@
     ```
 
 2. Activate the virtual environment:
-    - Windows:
-        ```bash
-        venv\Scripts\activate
-        ```
-    - Linux/macOS:
-        ```bash
-        source venv/bin/activate
-        ```
+    ```bash
+    source venv/bin/activate
+    ```
 
 3. Install the dependencies:
     ```bash
