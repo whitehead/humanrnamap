@@ -509,17 +509,33 @@ def main():
         if strand == 'pos':
             # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D1a = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D1b = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D1 = pd.concat([gene_D1a, gene_D1b])
+
+            gene_D2a = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D2b = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D2 = pd.concat([gene_D2a, gene_D2b])
+
+            gene_D3a = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
+            gene_D3b = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
+            gene_D3 = pd.concat([gene_D3a, gene_D3b])
 
         # create an if statement for when the strand is negative
         if strand == 'neg':
             # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
             # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D1a = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D1b = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D1 = pd.concat([gene_D1a, gene_D1b])
+
+            gene_D2a = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D2b = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D2 = pd.concat([gene_D2a, gene_D2b])
+
+            gene_D3a = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+            gene_D3b = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
+            gene_D3 = pd.concat([gene_D3a, gene_D3b])
 
     # put them all in one data frame gene_D1, gene_D2, gene_D3
     gene_strand = pd.DataFrame()
