@@ -610,8 +610,8 @@ def main():
     plot = RNAstructure[(RNAstructure['ref'] == 'A') | (RNAstructure['ref'] == 'C')]
 
     # replace underscore used in files for a space
-    if '_' in AOI:
-        AOI = original.replace('_', ' ')
+    # if '_' in AOI:
+    #     AOI = original.replace('_', ' ')
 
     # plot using RNAstructure frame with d as y and coord as x
     coordinates = plot['coord']
