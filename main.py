@@ -36,6 +36,7 @@ def main():
     # Commandline argument parsing
     parser = argparse.ArgumentParser(description="Specify the configuration file")
     parser.add_argument('--config', '-c', type=str, required=True, help='The configuration file to use')
+    parser.add_argument('--outdir', '-o', type=str, required=False, help='The output directory to use')
     args = parser.parse_args()
 
     # Read the TOML configuration file
@@ -54,7 +55,12 @@ def main():
         sys.exit(1)
 
     # create variables for the paths to different files
-    wkdir = os.path.abspath('./out/')
+
+    # arg outdir or
+    if args.outdir:
+        wkdir = os.path.abspath(args.outdir)
+    else:
+        wkdir = os.path.abspath('./out/')
     fastadir = wkdir + '/fasta'
     datdir = wkdir + '/dat'
     pfsdir = wkdir + '/pfs'
