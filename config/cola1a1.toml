@@ -1,0 +1,15 @@
+[general]
+AOI = COLA1A1
+
+[chromosome]
+user_chr = 17
+
+[coordinates]
+coord_opt = 2
+start_coord1 = 50188541 
+end_coord1 = 50188637
+start_coord2 = 50188742
+end_coord2 = 50188755
+
+[strand]
+choice = -

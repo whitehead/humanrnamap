@@ -332,7 +332,7 @@ def main():
             while alert:  # option 2 second starting coordinate
                 # take in coordinate as a string from user
                 if config.has_option('coordinates', 'start_coord1'):
-                    start_coord2 = config.get('coordinates', 'start_coord1')
+                    start_coord2 = config.get('coordinates', 'start_coord2')
                 else:
                     start_coord2 = input('input the second starting coordinate: ')
                 # create a list of individual strings for each character
@@ -362,8 +362,8 @@ def main():
             conducting = True
             while conducting:  # option 2 second set ending coordinate
                 # take in coordinate as a string from user
-                if config.has_option('coordinates', 'end_coord1'):
-                    end_coord2 = config.get('coordinates', 'end_coord1')
+                if config.has_option('coordinates', 'end_coord2'):
+                    end_coord2 = config.get('coordinates', 'end_coord2')
                 else:
                     end_coord2 = input('input the second ending coordinate: ')
                 # create a list of individual strings for each character
@@ -498,7 +498,7 @@ def main():
         # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
         # drop the start column and only include the pos for the coordinates and D1 column for coverage
         gene_strand = pd.concat([
-            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s, f_e),
+            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s1, f_e2),
             stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s2, f_e2)
         ])
 
