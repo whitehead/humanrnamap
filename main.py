@@ -488,61 +488,21 @@ def main():
     # create an if when user selects only one set of coordinates
     if coord_opt == '1':
         # set if statement for when the strand is positive
-        if strand == 'pos':
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-
-        # create an if statement for when the stand is negative
-        if strand == 'neg':
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1 = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D2 = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D3 = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
+        # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
+        # drop the start column and only include the pos for the coordinates and D1 column for coverage
+        gene_strand = stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s, f_e)
 
     # create an elif for when user slects to have two sets of coordinates
     elif coord_opt == '2':
         # set if statement for when the strand is positive
-        if strand == 'pos':
-            # make the positive bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1a = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D1b = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D1 = pd.concat([gene_D1a, gene_D1b])
-
-            gene_D2a = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D2b = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D2 = pd.concat([gene_D2a, gene_D2b])
-
-            gene_D3a = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s, f_e)
-            gene_D3b = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_pos.bedGraph', f_s2, f_e2)
-            gene_D3 = pd.concat([gene_D3a, gene_D3b])
-
-        # create an if statement for when the strand is negative
-        if strand == 'neg':
-            # make the negative bedgraph file for the respective chromosome a data frame and iterate through it
-            # drop the start column and only include the pos for the coordinates and D1 column for coverage
-            gene_D1a = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D1b = stream_filter_bedgraph_file('D1_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D1 = pd.concat([gene_D1a, gene_D1b])
-
-            gene_D2a = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D2b = stream_filter_bedgraph_file('D2_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D2 = pd.concat([gene_D2a, gene_D2b])
-
-            gene_D3a = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s, f_e)
-            gene_D3b = stream_filter_bedgraph_file('D3_' + chrom + '_mmRate_neg.bedGraph', f_s2, f_e2)
-            gene_D3 = pd.concat([gene_D3a, gene_D3b])
+        # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
+        # drop the start column and only include the pos for the coordinates and D1 column for coverage
+        gene_strand = pd.concat([
+            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s, f_e),
+            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s2, f_e2)
+        ])
 
     # put them all in one data frame gene_D1, gene_D2, gene_D3
-    gene_strand = pd.DataFrame()
-    # assign pos based on the pos of the first spliced sample
-    gene_strand['pos'] = gene_D1['pos']
-    # obtaiin the average of the 3 samples to represent D
-    gene_strand['D'] = (gene_D1['D1'] + gene_D2['D2'] + gene_D3['D3']) / 3
     log_timing_and_memory("average replicates")
 
     # read in fasta file for sequence and add ref column to df
@@ -824,14 +784,13 @@ def main():
         finishing = False
 
 def stream_filter_bedgraph_file(filename, start, end):
-    prefix = filename.split('_')[0]
     filtered_data = []
     with open(filename, 'r') as file:
         reader = csv.reader(file, delimiter='\t')
         for row in reader:
             pos = int(row[2])
             if start <= pos <= end:
-                filtered_data.append({'pos': pos, prefix: float(row[3])})
+                filtered_data.append({'pos': pos, 'D': float(row[3])})
     return pd.DataFrame(filtered_data)
 
 def abs_binary_path(name):
