@@ -643,6 +643,7 @@ def main():
     RNAstructure.reset_index(drop=True, inplace=True)
 
     # use fill na to change values to -999
+    RNAstructure['D'] = RNAstructure['D'] * 2 # Fold command expects scaling from 0 to 2 in .dat file
     RNAstructure['D'] = RNAstructure['D'].fillna(-999)
 
     seq = ''.join(RNAstructure.ref.tolist())  # creates a string with all bases included in the region
@@ -754,11 +755,11 @@ def main():
         high = []
         # append each value to their respective lists based on coverage
         for val in lst2:
-            if (0.00 <= RNAstructure['D'][val] < 0.25):
+            if (0.00 <= RNAstructure['D'][val] / 2 < 0.25): # divide by 2 to scale from 0 to 1, rather than 0 to 2
                 low.append(val)
-            elif (0.25 <= RNAstructure['D'][val] < 0.5):
+            elif (0.25 <= RNAstructure['D'][val] / 2 < 0.5):
                 mid.append(val)
-            elif (0.5 <= RNAstructure['D'][val] <= 1.0):
+            elif (0.5 <= RNAstructure['D'][val] / 2 <= 1.0):
                 high.append(val)
 
         # change directory for varna imaging
