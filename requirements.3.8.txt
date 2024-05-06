@@ -6,4 +6,5 @@ numpydoc==1.0.0
 pandas==1.2.4
 scipy==1.9.1
 seaborn==0.13.2
-
+svgutils==0.3.4
+psutil==5.9.8
