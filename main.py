@@ -1,4 +1,5 @@
 import os
+import re
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -96,6 +97,8 @@ def main():
         AOI = config.get('general', 'AOI')
     else:
         AOI = input('input a title for your area of interest: ')
+
+    scrubbed_aoi = scrub_filename(AOI)
 
     # obtain list of possible chromosome inputs from user
     lst = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19',
@@ -651,13 +654,9 @@ def main():
     # change to the fasta directory
     os.chdir(fastadir)
 
-    # place the underscore back in the title
-    if ' ' in AOI:
-        AOI = AOI.replace(' ', '_')
-
     # writes the fasta file containing the header and sequence
-    text_file = open(AOI + '.fasta', 'w')
-    text_file.write('>' + AOI + '\n')
+    text_file = open(scrubbed_aoi + '.fasta', 'w')
+    text_file.write('>' + scrubbed_aoi + '\n')
     text_file.write(seq)
     text_file.close()
 
@@ -666,20 +665,20 @@ def main():
     # save the .dat file(s)
     # only uses the coord and condition-average reactivity columns
     # use rnastrusture to create a .dat file using RNAstructure df
-    RNAstructure.to_csv(AOI + '_D.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
+    RNAstructure.to_csv(scrubbed_aoi + '_D.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
     log_timing_and_memory("write dat")
 
     # attach sample name to all files
     # fold command line
-    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{AOI}.fasta')}\" \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" --SHAPE \"{os.path.join(datdir, f'{AOI}_D.dat')}\"")
+    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}_D.dat')}\"")
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
-    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" \"{os.path.join(fold_FEdir, f'{AOI}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{AOI}_D.dat')}\"")
+    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}_D.dat')}\"")
     log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
-    FE_lines = open(fold_FEdir + '/' + AOI + '.txt')
+    FE_lines = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
     struct_num = len(FE_lines.readlines())
     print('this area of interest has', struct_num, 'structures. how many would you like to visualize? : ')
     # user_int = int(input()) # prompt the user for how many
@@ -687,7 +686,7 @@ def main():
     user_int = struct_num  # visualize them all
     for x in range(1, user_int + 1):
         user_struct = str(x)
-        FE_lines2 = open(fold_FEdir + '/' + AOI + '.txt')
+        FE_lines2 = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
         ttl = FE_lines2.readlines()
         y = ttl[x - 1]
         ttl2 = y.split(' ')
@@ -695,7 +694,7 @@ def main():
         energy = ' '.join(ttl2[4:])
         # obtain dbn file for specified structure
         # ct2dot ct to djbn (fold)
-        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{AOI}_{user_struct}.dbn')}\"")
+        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
         log_timing_and_memory("ct2dot")
 
         # obtain coverage percentage
@@ -729,7 +728,7 @@ def main():
                 finishing = False
 
         # open the new dbn file
-        fold_dbn = open(fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+        fold_dbn = open(fold_dbndir + '/' + scrubbed_aoi + '_' + user_struct + '.dbn')
         # read third line for dbn notation as list
         # -1 for extra space at the end of line
         struct1 = fold_dbn.readlines()[2][:-1]
@@ -780,10 +779,10 @@ def main():
         v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol', color='#000000', size=12)
         if ' ' in AOI:
             AOI = AOI.replace(' ', '_')
-        v.savefig(final_image + '/' + AOI + '_fold_' + user_struct + '.svg')
-        fig = sg.fromfile(final_image + '/' + AOI + '_fold_' + user_struct + '.svg')
+        v.savefig(final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg')
+        fig = sg.fromfile(final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg')
         fig.set_size(('2000', '2000'))
-        fig.save(final_image + '/' + AOI + '_fold_final_' + user_struct + '.svg')
+        fig.save(final_image + '/' + scrubbed_aoi + '_fold_final_' + user_struct + '.svg')
         # break to avoid infinite loop
         finishing = False
 
@@ -824,6 +823,9 @@ def run(cmd):
         print(f"Error: {e}")
         sys.exit(1)
 
+def scrub_filename(filename):
+    filename = re.sub(r'\W+', '_', filename)  # Replace one or more non-alnum characters with a single underscore
+    return filename
 
 # Run if called directly.
 if __name__ == "__main__":

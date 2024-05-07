@@ -6,3 +6,4 @@ RNAstructure
 out/*
 /RNAstructureLinuxTextInterfaces64bit.tgz
 VARNAv3-93.jar
+__pycache__
