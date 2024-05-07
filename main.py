@@ -671,13 +671,11 @@ def main():
 
     # attach sample name to all files
     # fold command line
-    run(fold_bin_path + ' ' + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
-    # os.system(fold_bin_path + fastadir + '/' + AOI + '.fasta ' + ctdir + '/' + AOI + '_fold.ct ' + '--SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{AOI}.fasta')}\" \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" --SHAPE \"{os.path.join(datdir, f'{AOI}_D.dat')}\"")
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
-    # os.system(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
-    run(efn2_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + fold_FEdir + '/' + AOI + '.txt --SHAPE ' + datdir + '/' + AOI + '_D.dat')
+    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" \"{os.path.join(fold_FEdir, f'{AOI}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{AOI}_D.dat')}\"")
     log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
@@ -697,8 +695,7 @@ def main():
         energy = ' '.join(ttl2[4:])
         # obtain dbn file for specified structure
         # ct2dot ct to djbn (fold)
-        # os.system(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
-        run(ct2dot_bin_path + ' ' + ctdir + '/' + AOI + '_fold.ct ' + user_struct + ' ' + fold_dbndir + '/' + AOI + '_' + user_struct + '.dbn')
+        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{AOI}_fold.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{AOI}_{user_struct}.dbn')}\"")
         log_timing_and_memory("ct2dot")
 
         # obtain coverage percentage
