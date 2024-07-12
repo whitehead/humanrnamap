@@ -2,5 +2,6 @@
 # Pass it a list of svg files.
 # e.g. ./trim_svg_images.sh *.svg
 set -e
-source venv/bin/activate
-python ./trim_svgs.py $@
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+source "$SCRIPT_DIR/venv/bin/activate"
+python "$SCRIPT_DIR/trim_svgs.py" "$@"
