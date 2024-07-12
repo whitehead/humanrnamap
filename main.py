@@ -513,7 +513,7 @@ def main():
         # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
         # drop the start column and only include the pos for the coordinates and D1 column for coverage
         gene_strand = pd.concat([
-            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s1, f_e2),
+            stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s1, f_e1),
             stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s2, f_e2)
         ])
 
@@ -643,11 +643,6 @@ def main():
     # save plot in files
     plt.savefig(barplotdir + '/' + 'plot.svg')
 
-    # anything above 25%, warning that their might be an outlier
-    # at least 40 valid data points
-    if max(RNAstructure['D']) >= 0.2 and len(gene_strand) < 40:
-        print(
-            'warning: there might be an outlier in this data. this may affect normalization for small areas of interest.')
 
     RNAstructure.reset_index(drop=True, inplace=True)
 
@@ -656,6 +651,33 @@ def main():
     RNAstructure['D'] = RNAstructure['D'].fillna(-999)
 
     seq = ''.join(RNAstructure.ref.tolist())  # creates a string with all bases included in the region
+
+    AC_count = seq.count('A') + seq.count('C')
+    AC_cov = round(len(gene_strand)/AC_count, 3) * 100
+
+    # begin while for coverage
+    finishing = True
+    while finishing:
+        # create if statement when coverage is less than 30%
+        if AC_cov < 75:
+            # display coverage to the user
+            print('In the defined region, DMS coverage is', AC_cov, '% of A/C bases.')
+            # take in user input yes/no to detrmine whether or not to proceed with imaging
+            choice2 = input('This is less than the recommended 75%. Do you wish to proceed?: ')
+            # make user input all uppercase to eliminate case sensitivity
+            choice2 = choice2.upper()
+            if choice2 == 'YES' or choice2 == 'Y':
+                finishing = False
+            elif choice2 == 'NO' or choice2 == 'N':
+                print('ending program...')
+                sys.exit(0)
+            else:
+                print('invalid input. try again.')
+                finishing = True
+        # create an elif statemnt when the coverage is greater than 30% or the user inputs yes
+        elif AC_cov >= 75:
+            print('DMS coverage in the defined region is', AC_cov, '% of A/C bases. This is above the recommended 75%.')
+            finishing = False
 
     # change to the fasta directory
     os.chdir(fastadir)
@@ -702,36 +724,6 @@ def main():
         # ct2dot ct to djbn (fold)
         run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
         log_timing_and_memory("ct2dot")
-
-        # obtain coverage percentage
-        d = len(gene_strand) / len(RNAstructure)
-        percentage = round(d, 2)
-        # multiply by 100 to obtain percentage
-        cov = 100 * percentage
-
-        # begin while for coverage
-        finishing = True
-        while finishing:
-            # create if statement when coverage is less than 30%
-            if cov < 30:
-                # display coverage to the user
-                print('your DMS coverage is', cov, '%')
-                # take in user input yes/no to detrmine whether or not to proceed with imaging
-                choice2 = input('since your DMS coverage is less than 30 %, do you wish to proceed?: ')
-                # make user input all uppercase to eliminate case sensitivity
-                choice2 = choice2.upper()
-                if choice2 == 'YES':
-                    finishing = False
-                elif choice2 == 'NO':
-                    print('ending program...')
-                    sys.exit(0)
-                else:
-                    print('invalid input. try again.')
-                    finishing = True
-            # create an elif statemnt when the coverage is greater than 30% or the user inputs yes
-            elif cov >= 30:
-                print('your DMS coverage is', cov, '%')
-                finishing = False
 
         # open the new dbn file
         fold_dbn = open(fold_dbndir + '/' + scrubbed_aoi + '_' + user_struct + '.dbn')
