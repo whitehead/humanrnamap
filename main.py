@@ -15,9 +15,15 @@ import csv
 import time
 import psutil
 
+# Local libraries
+import append_svgs
+import trim_svgs
+
 # Initialize variables to store the start time and previous call time
 start_time = time.time()
 previous_call_time = start_time
+
+LEGEND_SVG_PATH = os.path.join(os.path.dirname(__file__), "data", "colorbar.svg")
 
 def log_timing_and_memory(msg):
     global previous_call_time
@@ -779,10 +785,25 @@ def main():
         v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol', color='#000000', size=12)
         if ' ' in AOI:
             AOI = AOI.replace(' ', '_')
-        v.savefig(final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg')
-        fig = sg.fromfile(final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg')
+
+        preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg'
+        v.savefig(preliminary_figure_path)
+
+        fig = sg.fromfile(preliminary_figure_path)
         fig.set_size(('2000', '2000'))
-        fig.save(final_image + '/' + scrubbed_aoi + '_fold_final_' + user_struct + '.svg')
+
+        final_svg_path = final_image + '/' + scrubbed_aoi + '_fold_final_' + user_struct + '.svg'
+        fig.save(final_svg_path)
+
+        # delete the preliminary figure
+        os.remove(preliminary_figure_path)
+
+        # Trim svg (inplace)
+        trim_svgs.trim_svg_file(final_svg_path)
+
+        # Append legend (inplace)
+        append_svgs.append_svg_legend(final_svg_path, LEGEND_SVG_PATH)
+
         # break to avoid infinite loop
         finishing = False
 
