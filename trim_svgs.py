@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import sys
 import xml.etree.ElementTree as ET
@@ -5,7 +6,7 @@ import xml.etree.ElementTree as ET
 def get_float(element, attribute, default=0.0):
     return float(element.get(attribute, default))
 
-def update_viewbox(svg_file):
+def trim_svg_file(svg_file):
     # Parse the SVG file
     tree = ET.parse(svg_file)
     root = tree.getroot()
@@ -18,7 +19,7 @@ def update_viewbox(svg_file):
 
     for element in root.iter():
         if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text')):
-            if element.tag.endswith('rect'):
+            if element.tag.endswith(('rect', 'text')):
                 x = get_float(element, 'x')
                 y = get_float(element, 'y')
                 width = get_float(element, 'width')
@@ -98,8 +99,12 @@ def update_viewbox(svg_file):
     root.set('viewBox', viewbox)
 
     # Remove the width and height attributes if present
-    root.attrib.pop('width', None)
-    root.attrib.pop('height', None)
+    # root.attrib.pop('width', None)
+    # root.attrib.pop('height', None)
+    
+    # Update the width and height attributes
+    root.set('width', str(width))
+    root.set('height', str(height))
 
     # Save the updated SVG file in place
     tree.write(svg_file)
@@ -111,13 +116,17 @@ if len(sys.argv) < 2:
     print("Please provide one or more SVG filenames as arguments.")
     sys.exit(1)
 
-# Get the list of SVG filenames from the command-line arguments
-svg_files = sys.argv[1:]
+def main():
+    # Get the list of SVG filenames from the command-line arguments
+    svg_files = sys.argv[1:]
 
-# Process each SVG file
-for svg_file in svg_files:
-    if not os.path.isfile(svg_file):
-        print(f"File not found: {svg_file}")
-        continue
+    # Process each SVG file
+    for svg_file in svg_files:
+        if not os.path.isfile(svg_file):
+            print(f"File not found: {svg_file}")
+            continue
 
-    update_viewbox(svg_file)
+    trim_svg_file(svg_file)
+
+if __name__ == "__main__":
+    main()
