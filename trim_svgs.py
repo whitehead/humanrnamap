@@ -19,7 +19,6 @@ def estimate_text_bbox(text, font_size=16, avg_char_width=0.7):
     
     return (estimated_width, estimated_height)
 
-
 def trim_svg_file(svg_file):
     # Parse the SVG file
     tree = ET.parse(svg_file)
@@ -33,7 +32,7 @@ def trim_svg_file(svg_file):
 
     for element in root.iter():
         if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text')):
-            if element.tag.endswith('rect'):
+            if element.tag.endswith(('rect', 'text')):
                 x = get_float(element, 'x')
                 y = get_float(element, 'y')
                 width = get_float(element, 'width')
