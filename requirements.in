@@ -1,0 +1,18 @@
+# This file is used to specify the dependencies of the project
+# It is used by pip-tools to generate the requirements.txt file
+#
+# To install the dependencies, run the following command:
+# pip-compile requirements.in
+# pip install -r requirements.txt
+#
+# To update the dependencies, run the following command:
+# pip-compile --upgrade requirements.in
+# pip install -r requirements.txt
+matplotlib~=3.8.0
+numpy~=1.26.0
+pandas~=2.2.0
+psutil~=6.0.0
+scipy~=1.13.0
+seaborn~=0.13.0
+svgutils~=0.3.0
+varnaapi~=1.1.0
