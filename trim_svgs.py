@@ -17,7 +17,7 @@ def update_viewbox(svg_file):
     max_y = float('-inf')
 
     for element in root.iter():
-        if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path')):
+        if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text')):
             if element.tag.endswith('rect'):
                 x = get_float(element, 'x')
                 y = get_float(element, 'y')
