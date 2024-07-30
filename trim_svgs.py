@@ -5,6 +5,20 @@ import xml.etree.ElementTree as ET
 
 def get_float(element, attribute, default=0.0):
     return float(element.get(attribute, default))
+def estimate_text_bbox(text, font_size=16, avg_char_width=0.7):
+    """
+    Estimate the bounding box of an SVG text element.
+    
+    :param text: The text content
+    :param font_size: Font size in pixels
+    :param avg_char_width: Average character width as a fraction of font size
+    :return: A tuple (width, height) in pixels
+    """
+    estimated_width = len(text) * font_size * avg_char_width
+    estimated_height = font_size
+    
+    return (estimated_width, estimated_height)
+
 
 def trim_svg_file(svg_file):
     # Parse the SVG file
@@ -19,11 +33,19 @@ def trim_svg_file(svg_file):
 
     for element in root.iter():
         if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text')):
-            if element.tag.endswith(('rect', 'text')):
+            if element.tag.endswith('rect'):
                 x = get_float(element, 'x')
                 y = get_float(element, 'y')
                 width = get_float(element, 'width')
                 height = get_float(element, 'height')
+                min_x = min(min_x, x)
+                min_y = min(min_y, y)
+                max_x = max(max_x, x + width)
+                max_y = max(max_y, y + height)
+            elif element.tag.endswith('text'):
+                x = get_float(element, 'x')
+                y = get_float(element, 'y')
+                width, height = estimate_text_bbox(element)
                 min_x = min(min_x, x)
                 min_y = min(min_y, y)
                 max_x = max(max_x, x + width)
@@ -92,16 +114,13 @@ def trim_svg_file(svg_file):
                         else:
                             i += 1
 
-    # Update the viewBox attribute
-    width = max_x - min_x
-    height = max_y - min_y
-    viewbox = f"{min_x} {min_y} {width} {height}"
+    # Calculate new dimensions with padding
+    padding = 5
+    width = max_x - min_x + 2 * padding
+    height = max_y - min_y + 2 * padding
+    viewbox = f"{min_x - padding} {min_y - padding} {width} {height}"
     root.set('viewBox', viewbox)
 
-    # Remove the width and height attributes if present
-    # root.attrib.pop('width', None)
-    # root.attrib.pop('height', None)
-    
     # Update the width and height attributes
     root.set('width', str(width))
     root.set('height', str(height))
