@@ -32,7 +32,7 @@ def trim_svg_file(svg_file):
 
     for element in root.iter():
         if element.tag.endswith(('rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon', 'path', 'text')):
-            if element.tag.endswith(('rect', 'text')):
+            if element.tag.endswith('rect'):
                 x = get_float(element, 'x')
                 y = get_float(element, 'y')
                 width = get_float(element, 'width')
