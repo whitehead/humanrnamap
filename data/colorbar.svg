@@ -1,0 +1,22 @@
+<ns0:svg xmlns:ns0="http://www.w3.org/2000/svg" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0.0 0.0 81.80000000000001 34.7" style="enable-background:new 0 0 85 47;" xml:space="preserve" width="81.80000000000001" height="34.7">
+<ns0:style type="text/css">
+	.st0{fill:#231F20;}
+	.st1{font-family:'Verdana';}
+	.st2{font-size:12px;}
+	.st3{fill-rule:evenodd;clip-rule:evenodd;fill:#00FFFF;}
+	.st4{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFF00;}
+	.st5{fill-rule:evenodd;clip-rule:evenodd;fill:#FF0000;}
+	.st6{fill-rule:evenodd;clip-rule:evenodd;fill:none;stroke:#707070;stroke-miterlimit:10;}
+</ns0:style>
+<ns0:g>
+	<ns0:text transform="matrix(0.9501 0 0 1 8.5432 9.7271)" class="st0 st1 st2">DMS signal</ns0:text>
+	<ns0:text transform="matrix(0.9501 0 0 1 -0.482 46.1019)" class="st0 st1 st2">0</ns0:text>
+	<ns0:text transform="matrix(0.9501 0 0 1 77.9879 46.1017)" class="st0 st1 st2">1</ns0:text>
+	<ns0:g>
+		<ns0:rect x="2.5" y="14.4" class="st3" width="19.5" height="19.9" />
+		<ns0:rect x="22.1" y="14.4" class="st4" width="19.4" height="19.9" />
+		<ns0:rect x="41.2" y="14.1" class="st5" width="40.6" height="20.6" />
+		<ns0:rect x="2.5" y="14.4" class="st6" width="79.3" height="20.3" />
+	</ns0:g>
+</ns0:g>
+</ns0:svg>
