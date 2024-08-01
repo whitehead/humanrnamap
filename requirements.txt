@@ -53,7 +53,9 @@ parso==0.8.4
 pexpect==4.9.0
     # via ipython
 pillow==10.4.0
-    # via matplotlib
+    # via
+    #   -r requirements.in
+    #   matplotlib
 platformdirs==4.2.2
     # via varnaapi
 prompt-toolkit==3.0.47
