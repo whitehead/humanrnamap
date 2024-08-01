@@ -663,7 +663,10 @@ def main():
             # display coverage to the user
             print('In the defined region, DMS coverage is', AC_cov, '% of A/C bases.')
             # take in user input yes/no to detrmine whether or not to proceed with imaging
-            choice2 = input('This is less than the recommended 75%. Do you wish to proceed?: ')
+            if config.has_option('general', 'render_low_coverage'):
+                choice2 = config.get('general', 'render_low_coverage')
+            else:
+                choice2 = input('This is less than the recommended 75%. Do you wish to proceed?: ')
             # make user input all uppercase to eliminate case sensitivity
             choice2 = choice2.upper()
             if choice2 == 'YES' or choice2 == 'Y':
