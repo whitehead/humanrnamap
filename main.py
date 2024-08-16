@@ -69,17 +69,16 @@ def main():
     else:
         wkdir = os.path.abspath('./out/')
     fastadir = wkdir + '/fasta'
-    datdir = wkdir + '/dat'
-    pfsdir = wkdir + '/pfs'
+    datdir = wkdir + '/fold_constraints'
     ctdir = wkdir + '/ct'
-    cmapdir = wkdir + '/cmap'
+    csvdir = wkdir + '/csv'
     fold_dbndir = wkdir + '/fold_dbn'
     final_image = wkdir + '/final_image'
     fold_FEdir = wkdir + '/fold_FE'
     barplotdir = wkdir + '/barplot'
 
-    directories = [wkdir, fastadir, datdir, pfsdir, ctdir,
-                   cmapdir, fold_dbndir, final_image, fold_FEdir, barplotdir]
+    directories = [wkdir, fastadir, datdir, ctdir,
+                   csvdir, fold_dbndir, final_image, fold_FEdir, barplotdir]
 
     ensure_directories_exist(directories)
 
@@ -549,8 +548,9 @@ def main():
         norm_arr = (win_arr - win_arr.min()) / (win_arr.max() - win_arr.min())  # scale to 1
         return norm_arr
 
-    # use the windor function on column D
-    gene_strand['D'] = winsor_scale(gene_strand['D'])
+    gene_strand.rename(columns={'D' : 'mmRate'}, inplace=True)
+    # winsorize & scale raw mismatch rates
+    gene_strand['D'] = winsor_scale(gene_strand['mmRate'])
 
     # create if statement when user only inputs 1 coordinate
     if coord_opt == '1':
@@ -620,17 +620,21 @@ def main():
     RNAstructure['coord'] = np.arange(1, len(RNAstructure) + 1)
     RNAstructure.head()
 
+    
+
     # create data frame for plot only including A's and C's
     plot = pd.DataFrame()
     plot = RNAstructure[(RNAstructure['ref'] == 'A') | (RNAstructure['ref'] == 'C')]
+    plot.rename(columns={'D' : 'DMS_signal', 'pos' : 'chrom_coord', 'coord' : 'local_coord'}, inplace = True)
+    plot.to_csv(csvdir + '/' + scrubbed_aoi + '.csv', index=False)
 
     # replace underscore used in files for a space
     # if '_' in AOI:
     #     AOI = original.replace('_', ' ')
 
-    # plot using RNAstructure frame with d as y and coord as x
-    coordinates = plot['coord']
-    mismatch = plot['D']
+    # plot using RNAstructure frame with dms signal as y and local_coord as x
+    coordinates = plot['local_coord']
+    mismatch = plot['DMS_signal']
     plt.figure(figsize=(10, 7))
     plt.bar(coordinates, mismatch)
     ax = plt.gca()
@@ -641,7 +645,7 @@ def main():
     plt.ylabel("mismatch rates", fontsize=14)
     plt.title(AOI, fontsize=18)
     # save plot in files
-    plt.savefig(barplotdir + '/' + 'plot.svg')
+    plt.savefig(barplotdir + '/' + scrubbed_aoi + '_plot.svg')
 
 
     RNAstructure.reset_index(drop=True, inplace=True)
@@ -696,16 +700,16 @@ def main():
     # save the .dat file(s)
     # only uses the coord and condition-average reactivity columns
     # use rnastrusture to create a .dat file using RNAstructure df
-    RNAstructure.to_csv(scrubbed_aoi + '_D.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
+    RNAstructure.to_csv(scrubbed_aoi + '.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
     log_timing_and_memory("write dat")
 
     # attach sample name to all files
     # fold command line
-    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}_D.dat')}\"")
+    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
-    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}_D.dat')}\"")
+    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
@@ -725,7 +729,7 @@ def main():
         energy = ' '.join(ttl2[4:])
         # obtain dbn file for specified structure
         # ct2dot ct to djbn (fold)
-        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}_fold.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
+        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
         log_timing_and_memory("ct2dot")
 
         # open the new dbn file
