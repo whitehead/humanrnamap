@@ -14,6 +14,7 @@ import subprocess
 import csv
 import time
 import psutil
+import json
 
 # Local libraries
 import append_svgs
@@ -76,9 +77,10 @@ def main():
     final_image = wkdir + '/final_image'
     fold_FEdir = wkdir + '/fold_FE'
     barplotdir = wkdir + '/barplot'
+    jsondir = wkdir + '/json'
 
     directories = [wkdir, fastadir, datdir, ctdir,
-                   csvdir, fold_dbndir, final_image, fold_FEdir, barplotdir]
+                   csvdir, fold_dbndir, final_image, fold_FEdir, barplotdir, jsondir]
 
     ensure_directories_exist(directories)
 
@@ -459,16 +461,7 @@ def main():
                 # append all possible genes to the gene list
                 gene_list.append(anno['gene'][i])
         # set conditions to display gene(s) to the user
-        gene_list = [x for x in gene_list if str(x) != 'nan']
-        if len(gene_list) == 1:
-            for i in range(len(gene_list)):
-                print('based on canonical annotations, the following gene is in your area of interest: ', gene_list[i])
-        elif len(gene_list) > 1:
-            total = ', '.join(gene_list)
-            print('based on canonical annotations, the following genes are in your area of interest: ', total)
-        # set condition when there aren't any genes in the area of interest
-        elif len(gene_list) == 0:
-            print('based on canonical annotations, there are not any genes in your area of interest.')
+        gene_list = [x for x in gene_list if str(x) != 'nan']      
 
     # create an if condition for gene name if there are 2 sets of coordinates
     if coord_opt == '2':
@@ -485,16 +478,16 @@ def main():
                 # append all possible genes to the gene list
                 gene_list.append(anno['gene'][i])
         gene_list = [x for x in gene_list if str(x) != 'nan']
-        # set conditions to display gene(s) to the user
-        if len(gene_list) == 1:
-            for i in range(len(gene_list)):
-                print('based on canonical annotations, the following gene is in your area of interest: ', gene_list[i])
-        elif len(gene_list) > 1:
-            total = ','.join(gene_list)
-            print('based on canonical annotations, the following genes are in your area of interest: ', total)
-        # set condition when there aren't any genes in the area of interest
-        elif len(gene_list) == 0:
-            print('based on canonical annotations, there are not any genes in your area of interest.')
+        
+    if len(gene_list) == 1:
+        for i in range(len(gene_list)):
+            add_message('Annotation', 'info', 'Based on canonical annotations, the following gene is in your area of interest: ' + gene_list[i])
+    elif len(gene_list) > 1:
+        total_genes = ', '.join(gene_list)
+        add_message('Annotation', 'info', 'Based on canonical annotations, the following genes are in your area of interest: ' + total_genes)
+    # set condition when there aren't any genes in the area of interest
+    elif len(gene_list) == 0:
+        add_message('Annotation', 'warn', 'Based on canonical annotations, there are not any genes in your area of interest.')
 
     # change directory to folder with pileups
     os.chdir(bgdir)
@@ -620,6 +613,12 @@ def main():
     RNAstructure['coord'] = np.arange(1, len(RNAstructure) + 1)
     RNAstructure.head()
 
+    # create output messages for region length
+    region_len = len(RNAstructure)
+    if region_len <= 500:
+        add_message('Length', 'info', 'Length of region: ' + str(region_len) + ' nt.')
+    else:
+        add_message('Length', 'error', 'Input region length: ' + str(region_len) + ' nt. Maximum length: 500 nt. For longer regions, download and execute the code locally.')
     
 
     # create data frame for plot only including A's and C's
@@ -659,32 +658,12 @@ def main():
     AC_count = seq.count('A') + seq.count('C')
     AC_cov = round(len(gene_strand)/AC_count, 3) * 100
 
-    # begin while for coverage
-    finishing = True
-    while finishing:
-        # create if statement when coverage is less than 30%
-        if AC_cov < 75:
-            # display coverage to the user
-            print('In the defined region, DMS coverage is', AC_cov, '% of A/C bases.')
-            # take in user input yes/no to detrmine whether or not to proceed with imaging
-            if config.has_option('general', 'render_low_coverage'):
-                choice2 = config.get('general', 'render_low_coverage')
-            else:
-                choice2 = input('This is less than the recommended 75%. Do you wish to proceed?: ')
-            # make user input all uppercase to eliminate case sensitivity
-            choice2 = choice2.upper()
-            if choice2 == 'YES' or choice2 == 'Y':
-                finishing = False
-            elif choice2 == 'NO' or choice2 == 'N':
-                print('ending program...')
-                sys.exit(0)
-            else:
-                print('invalid input. try again.')
-                finishing = True
-        # create an elif statemnt when the coverage is greater than 30% or the user inputs yes
-        elif AC_cov >= 75:
-            print('DMS coverage in the defined region is', AC_cov, '% of A/C bases. This is above the recommended 75%.')
-            finishing = False
+    # set output messages for coverage 
+    if AC_cov >= 70:
+        add_message('Coverage', 'info', str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. Ideally, this number should be as high as possible for an experimenally-accurate prediction, and over 70% is recommended.")
+    else:
+        add_message('Coverage', 'warn', str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. This is lower than the recommended 70%. While structure prediction is still possible even without any coverage, the structures will be based on the sequence alone, rather than based on experimental constraints.")
+    
 
     # change to the fasta directory
     os.chdir(fastadir)
@@ -715,6 +694,11 @@ def main():
     # read the number of lines in the energy file to display the amount of structures to the user
     FE_lines = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
     struct_num = len(FE_lines.readlines())
+
+    add_message('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on this site. For up to 20 predictions per region, download and run the code locally.')
+
+    write_messages_to_json(filename = jsondir + '/' + scrubbed_aoi + '.json')
+
     print('this area of interest has', struct_num, 'structures. how many would you like to visualize? : ')
     # user_int = int(input()) # prompt the user for how many
     user_int = 1  # visualize the first one
@@ -846,6 +830,22 @@ def run(cmd):
 def scrub_filename(filename):
     filename = re.sub(r'\W+', '_', filename)  # Replace one or more non-alnum characters with a single underscore
     return filename
+
+# Global output message array
+messages = []
+
+def add_message(category, level, message):
+    global messages
+    messages.append({
+        "category": category,
+        "level": level,
+        "message": message
+    })
+
+def write_messages_to_json(filename="messages.json"):
+    global messages
+    with open(filename, 'w') as f:
+        json.dump(messages, f, indent=2)
 
 # Run if called directly.
 if __name__ == "__main__":
