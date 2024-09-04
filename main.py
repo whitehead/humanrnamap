@@ -23,7 +23,7 @@ import trim_svgs
 start_time = time.time()
 previous_call_time = start_time
 
-LEGEND_SVG_PATH = os.path.join(os.path.dirname(__file__), "data", "colorbar.svg")
+LEGEND_SVG_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "data", "colorbar.svg"))
 
 def log_timing_and_memory(msg):
     global previous_call_time
