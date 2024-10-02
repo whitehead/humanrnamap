@@ -91,14 +91,7 @@ def main():
 
     log_timing_and_memory("setup complete")
 
-    ## Lab filesystem paths
-    # bgdir = "/lab/jain_imaging/Kelsey/Sequencing/20220826_NovaSeq/ANALYSIS/bedGraph/chrom"
-    # gene_names_bed_path = wrkdir + '/bed/genename.bed'
-    # seq_fasta_dir = '/lab/jain_imaging/genomes/hg40.primary_STAR/fasta_stripped/'
 
-    # Input variables and coordinates.
-    # Ideally we'd want the option for at least 2 start/end coords so that they can look at structures over intron/exon junctions.
-    # obtain string of title from user
     # Get the input variables from the configuration file if they are set, otherwise use user input
     if config.has_option('general', 'AOI'):
         AOI = config.get('general', 'AOI')
@@ -132,7 +125,6 @@ def main():
             active = False
     # concantenate the user input with chr to resemble the chrx format in the file with x being the selected chromosme
     chrom = 'chr' + user_chr
-    # create an if statement with several elif statements to assign the length of the cromosome as the max value
     if user_chr == '1':
         cmax = 248956422
     elif user_chr == '2':
@@ -184,20 +176,16 @@ def main():
     elif user_chr == 'M':
         cmax = 16569
 
-    # set working equal to true for while loop
+    # loop for coordinate entries
     working = True
     while working:  # for coordinate set options
-        # take in user input for coordinate set option
         if config.has_option('coordinates', 'coord_opt'):
             coord_opt = config.get('coordinates', 'coord_opt')
         else:
             coord_opt = input('would you like to enter 1 or 2 sets of coordinates: ')
-        # create an if statement for 1 set of coordinate
         if coord_opt == '1':
-            # set running equal to true for while loop
             running = True
             while running:  # option 1 starting coordinates
-                # take in coordinate as a string from user
                 if config.has_option('coordinates', 'start_coord1'):
                     start_coord = config.get('coordinates', 'start_coord1')
                 else:
@@ -216,17 +204,14 @@ def main():
                     running
                 # create elif statement where input is only numbers
                 elif (s_str.isnumeric() == True):
-                    # convert string to integer
                     f_s = int(s_str)
-                    # create an if statement if the user input is larger or equal to the maximum chromosome number
                     if cmax <= f_s:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         running
                     # break loop if input is adequate
                     else:
                         running = False
-            # set executing equal to true for while loop
             executing = True
             while executing:  # option 1 ending coordinates
                 # take in coordinate as a string from user
@@ -236,10 +221,9 @@ def main():
                     end_coord = input('input the ending coordinate (hg38): ')
                 # create a list of individual strings for each character
                 e_nums = [x for x in end_coord]
-                # create a while loop to remove commas from user input
+                # remove commas from user input
                 while ',' in e_nums:
                     e_nums.remove(',')
-                # join user input string without commas
                 e_str = ''.join(e_nums)
                 # create an if statement for the user inputting a string that doesnt consist of only numbers
                 if (e_str.isnumeric() == False):
@@ -252,83 +236,67 @@ def main():
                     f_e = int(e_str)
                     # create an if statement if the user input is larger than the maximum chromosome number
                     if cmax < f_e:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         executing
-                    # create an elif statement if user input is equal to staarting coordinate
                     elif f_e == f_s:
                         print('this number is equal to the starting coordinate. try again.')
                         # reloop through while to promt user to input another value
                         executing
                     # create an elif statement if the ending coordinate is smaller than the starting coordinate
                     elif f_e < f_s:
-                        print('this number is smaller than the starting coordinate. try again.')
+                        print('the end coordinate must be larger than the start coordiate. try again.')
                         executing
                     # create an else statemnt to break loop when input is adequate
                     else:
                         executing = False
                         working = False
 
-        # create an elif statement if the user wants to input two sets of coordinates
         elif coord_opt == '2':
             playing = True
-            while playing:  # option 2 first set of starting coordinates
-                # take in coordinate as a string from user
+            while playing: 
                 if config.has_option('coordinates', 'start_coord1'):
                     start_coord1 = config.get('coordinates', 'start_coord1')
                 else:
                     start_coord1 = input('input the starting coordinate (hg38): ')
-                # create a list of individual strings for each character
                 s_nums1 = [x for x in start_coord1]
                 # create a while loop to remove commas from user input
                 while ',' in s_nums1:
                     s_nums1.remove(',')
-                # join user input string without commas
                 s_str1 = ''.join(s_nums1)
                 # create an if statement for the user inputting a string that doesnt consist of only numbers
                 if (s_str1.isnumeric() == False):
                     print('input must consist of only numbers. try again.')
                     # reloop though while to prompt user to enter another value
                     playing
-                # create elif statement where input is only numbers
                 elif (s_str1.isnumeric() == True):
                     # convert string to integer
                     f_s1 = int(s_str1)
-                    # create an if statement if the user input is larger or equal to the maximum chromosome number
                     if cmax <= f_s1:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         playing
                     # break loop if input is adequate
                     else:
                         playing = False
-            # set executing equal to true for while loop
             active = True
             while active:  # option 2 first set of ending coordinates
-                # take in coordinate as a string from user
                 if config.has_option('coordinates', 'end_coord1'):
                     end_coord1 = config.get('coordinates', 'end_coord1')
                 else:
                     end_coord1 = input('input the ending coordinate (hg38): ')
-                # create a list of individual strings for each character
                 e_nums1 = [x for x in end_coord1]
-                # create a while loop to remove commas from user input
                 while ',' in e_nums1:
                     e_nums1.remove(',')
-                # join user input string without commas
                 e_str1 = ''.join(e_nums1)
-                # create an if statement for the user inputting a string that doesnt consist of only numbers
                 if (e_str1.isnumeric() == False):
                     print('input must consist of only numbers. try again.')
                     # reloop though while to prompt user to enter another value
                     active
-                # create elif statement where input is only numbers
                 elif (e_str1.isnumeric() == True):
-                    # convert string to integer
                     f_e1 = int(e_str1)
-                    # create an if statement if the user input is larger than the maximum chromosome number
                     if cmax < f_e1:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         active
                     # create an elif statement if user input is equal to staarting coordinate
@@ -338,7 +306,7 @@ def main():
                         active
                     # create an elif statement if the ending coordinate is smaller than the starting coordinate
                     elif f_e1 < f_s1:
-                        print('this number is smaller than the starting coordinate. try again.')
+                        print('the end coordinate must be larger than the start coordinate. try again.')
                         active
                     # create an else statemnt to break loop when input is adequate
                     else:
@@ -346,30 +314,22 @@ def main():
                         working = False
             alert = True
             while alert:  # option 2 second starting coordinate
-                # take in coordinate as a string from user
                 if config.has_option('coordinates', 'start_coord1'):
                     start_coord2 = config.get('coordinates', 'start_coord2')
                 else:
                     start_coord2 = input('input the second starting coordinate: ')
-                # create a list of individual strings for each character
                 s_nums2 = [x for x in start_coord2]
-                # create a while loop to remove commas from user input
                 while ',' in s_nums2:
                     s_nums2.remove(',')
-                # join user input string without commas
                 s_str2 = ''.join(s_nums2)
-                # create an if statement for the user inputting a string that doesnt consist of only numbers
                 if (s_str2.isnumeric() == False):
                     print('input must consist of only numbers. try again.')
                     # reloop though while to prompt user to enter another value
                     alert
-                # create elif statement where input is only numbers
                 elif (s_str2.isnumeric() == True):
-                    # convert string to integer
                     f_s2 = int(s_str2)
-                    # create an if statement if the user input is larger or equal to the maximum chromosome number
                     if cmax <= f_s2:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         alert
                     # break loop if input is adequate
@@ -377,30 +337,22 @@ def main():
                         alert = False
             conducting = True
             while conducting:  # option 2 second set ending coordinate
-                # take in coordinate as a string from user
                 if config.has_option('coordinates', 'end_coord2'):
                     end_coord2 = config.get('coordinates', 'end_coord2')
                 else:
                     end_coord2 = input('input the second ending coordinate: ')
-                # create a list of individual strings for each character
                 e_nums2 = [x for x in end_coord2]
-                # create a while loop to remove commas from user input
                 while ',' in e_nums2:
                     e_nums2.remove(',')
-                # join user input string without commas
                 e_str2 = ''.join(e_nums2)
-                # create an if statement for the user inputting a string that doesnt consist of only numbers
                 if (e_str2.isnumeric() == False):
                     print('input must consist of only numbers. try again.')
                     # reloop though while to prompt user to enter another value
                     conducting
-                # create elif statement where input is only numbers
                 elif (e_str2.isnumeric() == True):
-                    # convert string to integer
                     f_e2 = int(e_str2)
-                    # create an if statement if the user input is larger than the maximum chromosome number
                     if cmax < f_e2:
-                        print('this number is too large. try again.')
+                        print('this number is too large for the selected chromosome. try again.')
                         # reloop through while to prompt user to input another value
                         conducting
                     # create an elif statement if user input is equal to staarting coordinate
@@ -410,7 +362,7 @@ def main():
                         conducting
                     # create an elif statement if the ending coordinate is smaller than the starting coordinate
                     elif f_e2 < f_s2:
-                        print('this number is smaller than the starting coordinate. try again.')
+                        print('the end coordinate must be larger than the start coordinate. try again.')
                         conducting
                     # create an else statemnt to break loop when input is adequate
                     else:
@@ -443,13 +395,14 @@ def main():
             print(f"Invalid input {choice}. Please enter a valid strand. (Either + or -)")
             # reloop through while to prompt user to input another value
             managing
+    
+    # DONE WITH INPUTS!
 
     log_timing_and_memory("config complete")
 
-    # read canonical bed file under the variable anno
+    # read in canonical annotation bed file 
     anno = pd.read_csv(gene_names_bed_path, sep='\t')
     log_timing_and_memory("read annotations")
-    # create an empty gene list
     gene_list = []
     # create an if condition for gene name if there is only 1 set of coordinates
     if coord_opt == '1':
@@ -480,47 +433,34 @@ def main():
         gene_list = [x for x in gene_list if str(x) != 'nan']
         
     if len(gene_list) == 1:
-        for i in range(len(gene_list)):
-            add_message('Annotation', 'info', 'Based on canonical annotations, the following gene is in your area of interest: ' + gene_list[i])
+        add_message('Annotation', 'info', 'Based on canonical annotations, the following gene is in your area of interest: ' + gene_list[0])
+        print('Based on canonical annotations, the following gene is in your area of interest: ' + gene_list[0])
     elif len(gene_list) > 1:
         total_genes = ', '.join(gene_list)
         add_message('Annotation', 'info', 'Based on canonical annotations, the following genes are in your area of interest: ' + total_genes)
-    # set condition when there aren't any genes in the area of interest
+        print('Based on canonical annotations, the following genes are in your area of interest: ' + total_genes)
     elif len(gene_list) == 0:
         add_message('Annotation', 'warn', 'Based on canonical annotations, there are not any genes in your area of interest.')
 
-    # change directory to folder with pileups
+    # change directory to folder with bedGraph files containing DMS mismatch rates
     os.chdir(bgdir)
 
     # create an if when user selects only one set of coordinates
     if coord_opt == '1':
-        # set if statement for when the strand is positive
-        # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
-        # drop the start column and only include the pos for the coordinates and D1 column for coverage
+
         gene_strand = stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s, f_e)
 
     # create an elif for when user slects to have two sets of coordinates
     elif coord_opt == '2':
-        # set if statement for when the strand is positive
-        # make the positive/negative bedgraph file for the respective chromosome a data frame and iterate through it
-        # drop the start column and only include the pos for the coordinates and D1 column for coverage
         gene_strand = pd.concat([
             stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s1, f_e1),
             stream_filter_bedgraph_file(f'Davg_{chrom}_mmRate_{strand}.bedGraph', f_s2, f_e2)
         ])
 
-    # put them all in one data frame gene_D1, gene_D2, gene_D3
-    log_timing_and_memory("average replicates")
-
-    # read in fasta file for sequence and add ref column to df
+    # read in fasta file for sequence and add ref column to df. NOTE: this script requires the fasta sequence to be written without line breaks.
     abs_seq_file_path = os.path.abspath(f"{seq_fasta_dir}{chrom}.fasta")
 
     seq_file = open(abs_seq_file_path)
-    # seq_lines = seq_file.readlines()
-    # seq = seq_lines[1]
-    # seq = seq.strip()
-    # seq_list = [letter for letter in seq]
-    # seq_file.close()
 
     def read_specific_position(file_path, start_pos, end_pos):
         with open(file_path, 'rb') as file:
@@ -533,11 +473,10 @@ def main():
 
     log_timing_and_memory("write fasta")
 
-    # this function removes the top 5% of outliers and scales that output to a max of 1
+    # this function removes the top 5% of outliers and scales that output to a max of 1, as typical for DMS data processing
     def winsor_scale(col):
         arr = np.array(col)
         win_arr = winsorize(arr, limits=[0.00, 0.05]).data  # winsorize with limits of 0%, 95%.
-        # FOR VERY SMALL WINDOWS, WE WILL NEED TO SHOW A WARNING IF THE HIGHEST VALLUE IS AN OUTLIER.
         norm_arr = (win_arr - win_arr.min()) / (win_arr.max() - win_arr.min())  # scale to 1
         return norm_arr
 
@@ -545,52 +484,25 @@ def main():
     # winsorize & scale raw mismatch rates
     gene_strand['D'] = winsor_scale(gene_strand['mmRate'])
 
-    # create if statement when user only inputs 1 coordinate
     if coord_opt == '1':
-        # create the data frame RNAstructure
         RNAstructure = pd.DataFrame()
-        # iterate through the user input for start and end coordinates and append them as column pos in the df
-        RNAstructure['pos'] = range(f_s, f_e + 1)
-        # empty coord column
+        RNAstructure['pos'] = range(f_s, f_e + 1) #list of coordinates based on user input
         RNAstructure['coord'] = ''
-        # append ref column to RNAstructure to assign base letter to each coordinate
-        #RNAstructure['ref'] = seq_list[f_s - 1:f_e]
         RNAstructure['ref'] = read_specific_position_seq(f_s - 1, f_e)
-        # merge RNAstructure with gene_strand to append coverage values to RNAstructure
+        # merge RNAstructure with gene_strand to add DMS values to RNAstructure
         RNAstructure = RNAstructure.merge(gene_strand, on=['pos'], how='left')
     # create if statement when the user input is two coordinates
     if coord_opt == '2':
-        # create a list that includes coordinates from both sets of user inputs
         pos_list = list(range(f_s1, f_e1 + 1)) + list(range(f_s2, f_e2 + 1))
-        # create the data frame RNAstructure
         RNAstructure = pd.DataFrame()
-        # create column pos from pos_list values to append all coordinates to the df
         RNAstructure['pos'] = pos_list
-        # empty coord column
         RNAstructure['coord'] = ''
-        # create two_seq to append the sequence from both sets of coordinates
-        # two_seq = seq_list[f_s1 - 1:f_e1] + seq_list[f_s2 - 1:f_e2]
         two_seq = read_specific_position_seq(f_s1 - 1,f_e1) + read_specific_position_seq(f_s2 - 1,f_e2)
-        # append two_seq to the df to assign a base letter to each coordinate
         RNAstructure['ref'] = two_seq
         # merge RNAstructure with gene_strand to append coverage values to RNAstructure
         RNAstructure = RNAstructure.merge(gene_strand, on=['pos'], how='left')
 
     # for reversely stranded genes, reverse the order of the bases and replace them with their complements
-    def rev_strand(df):
-        df.sort_values('pos', ascending=False, inplace=True).reset_index(drop=True, inplace=True)  # reverses the order
-        for i in range(0, len(df)):  # replace with their complements
-            if df['ref'][i] == "A":
-                df['ref'][i] = 'U'
-            elif df['ref'][i] == 'T':
-                df['ref'][i] = 'A'
-            elif df['ref'][i] == 'G':
-                df['ref'][i] = 'C'
-            elif df['ref'][i] == 'C':
-                df['ref'][i] = 'G'
-        return df
-
-    # create an if statement to reverse stand if strand is negative
     if strand == 'neg':
         RNAstructure.sort_values('pos', ascending=False, inplace=True)
         RNAstructure.reset_index(drop=True, inplace=True)  # reverses the order
@@ -609,16 +521,18 @@ def main():
             if RNAstructure['ref'][i] == 'T':
                 RNAstructure['ref'][i] = 'U'
 
-    # fill coord column starting from 1
-    RNAstructure['coord'] = np.arange(1, len(RNAstructure) + 1)
+    # fill coord column starting from 1, now that strandedness has been corrected where necessary
+    RNAstructure['coord'] = np.arange(1, len(RNAstructure) + 1) 
     RNAstructure.head()
 
     # create output messages for region length
     region_len = len(RNAstructure)
     if region_len <= 500:
         add_message('Length', 'info', 'Length of region: ' + str(region_len) + ' nt.')
+        print('Length of region: ' + str(region_len) + ' nt.')
     else:
         add_message('Length', 'error', 'Input region length: ' + str(region_len) + ' nt. Maximum length: 500 nt. For longer regions, download and execute the code locally.')
+        print('Input region length: ' + str(region_len) + ' nt. Maximum length: 500 nt when running in online database. For longer regions, download and execute the code locally.')
     
 
     # create data frame for plot only including A's and C's
@@ -627,9 +541,6 @@ def main():
     plot.rename(columns={'D' : 'DMS_signal', 'pos' : 'chrom_coord', 'coord' : 'local_coord'}, inplace = True)
     plot.to_csv(csvdir + '/' + scrubbed_aoi + '.csv', index=False)
 
-    # replace underscore used in files for a space
-    # if '_' in AOI:
-    #     AOI = original.replace('_', ' ')
 
     # plot using RNAstructure frame with dms signal as y and local_coord as x
     coordinates = plot['local_coord']
@@ -643,15 +554,11 @@ def main():
     plt.xlabel("coordinates", fontsize=14)
     plt.ylabel("mismatch rates", fontsize=14)
     plt.title(AOI, fontsize=18)
-    # save plot in files
     plt.savefig(barplotdir + '/' + scrubbed_aoi + '_plot.svg')
 
 
     RNAstructure.reset_index(drop=True, inplace=True)
-
-    # use fill na to change values to -999
-    RNAstructure['D'] = RNAstructure['D'] * 2 # Fold command expects scaling from 0 to 2 in .dat file
-    RNAstructure['D'] = RNAstructure['D'].fillna(-999)
+    RNAstructure['D'] = RNAstructure['D'].fillna(-999) # bases without sufficient coverage and G/Ts should not be considered in calculation
 
     seq = ''.join(RNAstructure.ref.tolist())  # creates a string with all bases included in the region
 
@@ -661,14 +568,15 @@ def main():
     # set output messages for coverage 
     if AC_cov >= 70:
         add_message('Coverage', 'info', str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. Ideally, this number should be as high as possible for an experimenally-accurate prediction, and over 70% is recommended.")
+        print(str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. Ideally, this number should be as high as possible for an experimenally-accurate prediction, and over 70% is recommended.")
+
     else:
         add_message('Coverage', 'warn', str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. This is lower than the recommended 70%. While structure prediction is still possible even without any coverage, the structures will be based on the sequence alone, rather than based on experimental constraints.")
-    
+        print(str(AC_cov) + "% of the region's A/C bases included in the filtered DMS dataset. This is lower than the recommended 70%. While structure prediction is still possible even without any coverage, the structures will be based on the sequence alone, rather than based on experimental constraints.")
 
-    # change to the fasta directory
     os.chdir(fastadir)
 
-    # writes the fasta file containing the header and sequence
+    # writes the temp fasta file containing the header and sequence
     text_file = open(scrubbed_aoi + '.fasta', 'w')
     text_file.write('>' + scrubbed_aoi + '\n')
     text_file.write(seq)
@@ -676,19 +584,16 @@ def main():
 
     # change to the .dat directory
     os.chdir(datdir)
-    # save the .dat file(s)
-    # only uses the coord and condition-average reactivity columns
-    # use rnastrusture to create a .dat file using RNAstructure df
     RNAstructure.to_csv(scrubbed_aoi + '.dat', sep='\t', header=False, index=False, columns=['coord', 'D'])
     log_timing_and_memory("write dat")
 
     # attach sample name to all files
     # fold command line
-    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
+    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" -dms \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
-    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
+    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" -dms \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
@@ -696,14 +601,11 @@ def main():
     struct_num = len(FE_lines.readlines())
 
     add_message('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on this site. For up to 20 predictions per region, download and run the code locally.')
+    print('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on the web server. For up to 20 predictions per region, download and run the code locally.')
 
     write_messages_to_json(filename = jsondir + '/' + scrubbed_aoi + '.json')
 
-    print('this area of interest has', struct_num, 'structures. how many would you like to visualize? : ')
-    # user_int = int(input()) # prompt the user for how many
-    user_int = 1  # visualize the first one
-    user_int = struct_num  # visualize them all
-    for x in range(1, user_int + 1):
+    for x in range(1, struct_num + 1): #loops through to visualize all structures
         user_struct = str(x)
         FE_lines2 = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
         ttl = FE_lines2.readlines()
@@ -712,7 +614,7 @@ def main():
         s_num = ttl2[1]
         energy = ' '.join(ttl2[4:])
         # obtain dbn file for specified structure
-        # ct2dot ct to djbn (fold)
+        # ct2dot converts individual structure in ct to dbn 
         run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
         log_timing_and_memory("ct2dot")
 
@@ -722,29 +624,27 @@ def main():
         # -1 for extra space at the end of line
         struct1 = fold_dbn.readlines()[2][:-1]
 
-        # create a lst1 for g's and u's and lst 2 for a's and c's
+        # create a lst1 for bases without DMS data (Gs/Ts, low-coverage bases) and lst 2 for bases with valid data (high-cov As/Cs)
         lst1 = []
         lst2 = []
 
         # iterate though list of individual letters
         for val in range(len(RNAstructure)):
-            # append the base number of g's and u's for'
-            # final version shouldn't have to have the T line
-            if RNAstructure['D'][val] == -999:
+            if RNAstructure['D'][val] == -999: #from fillna earlier
                 lst1.append(val)
             else:
                 lst2.append(val)
-        # create list low, mid and high for low, mid, and high coverage values
+        # create list low, mid and high for low, mid, and high signal values, for colormap purposes
         low = []
         mid = []
         high = []
         # append each value to their respective lists based on coverage
         for val in lst2:
-            if (0.00 <= RNAstructure['D'][val] / 2 < 0.25): # divide by 2 to scale from 0 to 1, rather than 0 to 2
+            if (0.00 <= RNAstructure['D'][val] < 0.25): 
                 low.append(val)
-            elif (0.25 <= RNAstructure['D'][val] / 2 < 0.5):
+            elif (0.25 <= RNAstructure['D'][val] < 0.5):
                 mid.append(val)
-            elif (0.5 <= RNAstructure['D'][val] / 2 <= 1.0):
+            elif (0.5 <= RNAstructure['D'][val] <= 1.0):
                 high.append(val)
 
         # change directory for varna imaging
@@ -755,19 +655,16 @@ def main():
         import varnaapi
         varnaapi.set_VARNA(varna_path)
         v = VARNA(structure=struct1, sequence=seq)
-        style1 = varnaapi.param.BasesStyle(fill="#FFFFFF")
-        style2 = varnaapi.param.BasesStyle(fill="#00FFFF")
-        style3 = varnaapi.param.BasesStyle(fill="#FFFF00")
-        style4 = varnaapi.param.BasesStyle(fill="#FF0000")
+        style1 = varnaapi.param.BasesStyle(fill="#FFFFFF") # white; bases without data
+        style2 = varnaapi.param.BasesStyle(fill="#00FFFF") # blue; low signal
+        style3 = varnaapi.param.BasesStyle(fill="#FFFF00") # yellow; moderate signal
+        style4 = varnaapi.param.BasesStyle(fill="#FF0000") # red; high signal
         v.add_bases_style(style1, lst1)
         v.add_bases_style(style2, low)
         v.add_bases_style(style3, mid)
         v.add_bases_style(style4, high)
-        if '_' in AOI:
-            AOI = AOI.replace('_', ' ')
+
         v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol', color='#000000', size=12)
-        if ' ' in AOI:
-            AOI = AOI.replace(' ', '_')
 
         preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg'
         v.savefig(preliminary_figure_path)
