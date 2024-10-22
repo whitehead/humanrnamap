@@ -593,7 +593,7 @@ def main():
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
-    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" -dms \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
+    run(f"{efn2_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" \"{os.path.join(fold_FEdir, f'{scrubbed_aoi}.txt')}\" -sh \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("efn2")
 
     # read the number of lines in the energy file to display the amount of structures to the user
