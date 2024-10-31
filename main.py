@@ -589,7 +589,7 @@ def main():
 
     # attach sample name to all files
     # fold command line
-    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" -dms \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
+    run(f"{fold_bin_path} \"{os.path.join(fastadir, f'{scrubbed_aoi}.fasta')}\" \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" --SHAPE \"{os.path.join(datdir, f'{scrubbed_aoi}.dat')}\"")
     log_timing_and_memory("fold")
 
     # run command to obtain free folding energy
