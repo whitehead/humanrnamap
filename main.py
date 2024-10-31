@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats.mstats import winsorize
+from sklearn.metrics import roc_auc_score
 import seaborn as sns
 import svgutils.transform as sg
 import sys
@@ -78,9 +79,10 @@ def main():
     fold_FEdir = wkdir + '/fold_FE'
     barplotdir = wkdir + '/barplot'
     jsondir = wkdir + '/json'
+    aucdir = wkdir + '/auc'
 
     directories = [wkdir, fastadir, datdir, ctdir,
-                   csvdir, fold_dbndir, final_image, fold_FEdir, barplotdir, jsondir]
+                   csvdir, fold_dbndir, final_image, fold_FEdir, barplotdir, jsondir, aucdir]
 
     ensure_directories_exist(directories)
 
@@ -483,6 +485,10 @@ def main():
     gene_strand.rename(columns={'D' : 'mmRate'}, inplace=True)
     # winsorize & scale raw mismatch rates
     gene_strand['D'] = winsor_scale(gene_strand['mmRate'])
+    
+    if len(gene_strand) < 10:
+        add_message('Structures', 'warn', 'Too few datapoints for AUC calculation. Recommended >= 10. Region contains only ' + str(len(gene_strand)) + '.')
+        print('Too few datapoints for AUC calculation. Recommended >= 10. Region contains only ' + str(len(gene_strand)) + '.')
 
     if coord_opt == '1':
         RNAstructure = pd.DataFrame()
@@ -601,9 +607,11 @@ def main():
     struct_num = len(FE_lines.readlines())
 
     add_message('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on this site. For up to 20 predictions per region, download and run the code locally.')
-    print('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on the web server. For up to 20 predictions per region, download and run the code locally.')
+    print('This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on the web server. For up to 20 predictions per region, download and run the code locally.')
 
     write_messages_to_json(filename = jsondir + '/' + scrubbed_aoi + '.json')
+    
+    AUC_list = []
 
     for x in range(1, struct_num + 1): #loops through to visualize all structures
         user_struct = str(x)
@@ -623,6 +631,17 @@ def main():
         # read third line for dbn notation as list
         # -1 for extra space at the end of line
         struct1 = fold_dbn.readlines()[2][:-1]
+        
+        dbn_binary_string = struct1.replace('(', '0').replace(')', '0').replace('.', '1') #will be used for AUROC calc
+        dbn_binary_list = [int(x) for x in list(dbn_binary_string)] 
+        
+        RNAstructure['dbn_binary'] = dbn_binary_list
+        
+        RNAstructure_dataonly = RNAstructure.drop(index=RNAstructure[RNAstructure['D'] == -999].index)
+        if len(RNAstructure_dataonly) >= 10:
+            AUC = round(roc_auc_score(RNAstructure_dataonly['dbn_binary'].astype('bool').to_list(),
+                                RNAstructure_dataonly['D'].to_list()), 3)
+            AUC_list.append(AUC)
 
         # create a lst1 for bases without DMS data (Gs/Ts, low-coverage bases) and lst 2 for bases with valid data (high-cov As/Cs)
         lst1 = []
@@ -664,7 +683,7 @@ def main():
         v.add_bases_style(style3, mid)
         v.add_bases_style(style4, high)
 
-        v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol', color='#000000', size=12)
+        v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol, AUC ROC: ' + str(AUC), color='#000000', size=12)
 
         preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg'
         v.savefig(preliminary_figure_path)
@@ -686,6 +705,15 @@ def main():
 
         # break to avoid infinite loop
         finishing = False
+    
+    os.chdir(aucdir)   
+    auc_file = open(scrubbed_aoi + '_AUCs.txt', 'w')
+    if len(AUC_list) > 0:
+        for i in range(len(AUC_list)):
+            auc_file.write('Structure ' + str(i + 1) +': ' + str(AUC_list[i]) + '\n')
+    else:
+        auc_file.write('AUC ROCs could not be calculated, likely due to lack of coverage in dataset.')
+    auc_file.close()
 
 def stream_filter_bedgraph_file(filename, start, end):
     filtered_data = []
