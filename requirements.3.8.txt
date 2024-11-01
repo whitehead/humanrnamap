@@ -7,6 +7,6 @@ pandas==1.2.4
 psutil==5.9.8
 scipy==1.9.1
 seaborn==0.13.2
-sklearn==0.0
+scikit-learn==1.5
 svgutils==0.3.4
 varnaapi==1.0.0
