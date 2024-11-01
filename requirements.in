@@ -17,3 +17,4 @@ seaborn~=0.13.0
 svgutils~=0.3.0
 varnaapi~=1.1.0
 Pillow~=10.4.0
+scikit-learn~=1.5

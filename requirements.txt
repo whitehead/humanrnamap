@@ -24,6 +24,8 @@ ipython==8.26.0
     # via varnaapi
 jedi==0.19.1
     # via ipython
+joblib==1.4.2
+    # via scikit-learn
 kiwisolver==1.4.5
     # via matplotlib
 lxml==5.2.2
@@ -40,6 +42,7 @@ numpy==1.26.4
     #   contourpy
     #   matplotlib
     #   pandas
+    #   scikit-learn
     #   scipy
     #   seaborn
 packaging==24.1
@@ -78,8 +81,12 @@ pytz==2024.1
     # via pandas
 pyyaml==6.0.1
     # via varnaapi
-scipy==1.13.0
+scikit-learn==1.5.2
     # via -r requirements.in
+scipy==1.13.0
+    # via
+    #   -r requirements.in
+    #   scikit-learn
 seaborn==0.13.2
     # via -r requirements.in
 six==1.16.0
@@ -90,6 +97,8 @@ stack-data==0.6.3
     # via ipython
 svgutils==0.3.4
     # via -r requirements.in
+threadpoolctl==3.5.0
+    # via scikit-learn
 traitlets==5.14.3
     # via
     #   ipython
