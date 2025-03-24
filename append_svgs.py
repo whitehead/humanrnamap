@@ -10,7 +10,7 @@ def get_svg_dimensions(root):
         height = float(root.attrib.get('height', '0').rstrip('px'))
         return [0, 0, width, height]
 
-def append_svg_legend(main_file, legend_file, gap=10, output_file=None):
+def append_svg_legend(main_file, legend_file, gap=20, output_file=None):
     # Parse SVG files
     ET.register_namespace("", "http://www.w3.org/2000/svg")
     main_tree = ET.parse(main_file)
@@ -53,7 +53,7 @@ def main():
     parser = argparse.ArgumentParser(description="Combine a main SVG with a legend SVG.")
     parser.add_argument("main_file", help="Path to the main SVG file")
     parser.add_argument("legend_file", help="Path to the legend SVG file")
-    parser.add_argument("--gap", type=int, default=10, help="Gap between main image and legend (default: 10)")
+    parser.add_argument("--gap", type=int, default=20, help="Gap between main image and legend (default: 10)")
     parser.add_argument("--output", default=None, help="Output file name (default: overwrite main file)")
 
     args = parser.parse_args()
