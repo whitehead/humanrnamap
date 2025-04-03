@@ -250,8 +250,8 @@ def main():
             if cmax < int_curr_end:
                 print('ERR: Coordinate input is too large for the selected chromosome. Exiting.')
                 sys.exit()
-            elif int_curr_end <= int_curr_start:
-                print('ERR: End coordinate is less than or equal to the start coordinate. Exiting.')
+            elif int_curr_end < int_curr_start:
+                print('ERR: End coordinate is less than the start coordinate. Exiting.')
                 sys.exit()
             end_coords.append(int_curr_end)
             if max(end_coords) != int_curr_end:
