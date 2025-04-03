@@ -426,7 +426,7 @@ def main():
         ax.spines['right'].set_visible(False)
         plt.ylim(0, 1)
         plt.xlabel("coordinates", fontsize=14)
-        plt.ylabel("mismatch rates", fontsize=14)
+        plt.ylabel("DMS signal", fontsize=14)
         plt.title(AOI, fontsize=18)
         plt.savefig(barplotdir + '/' + scrubbed_aoi + '_plot.svg')
 
@@ -475,33 +475,28 @@ def main():
     struct_num = len(FE_lines.readlines())
 
     add_message('Structures', 'info', 'This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on this site. For up to 20 predictions per region, download and run the code locally.')
-    print('This region has ' + str(struct_num) + ' maximum predicted structures. 5 is the maximum structures visible on the web server. For up to 20 predictions per region, download and run the code locally.')
+    print('This region has ' + str(struct_num) + ' predicted structures. 5 is the maximum structures visible on the web server. For up to 20 predictions per region, download and run the code locally.')
 
     write_messages_to_json(filename = jsondir + '/' + scrubbed_aoi + '.json')
     
     AUC_list = []
 
-    for x in range(1, struct_num + 1): #loops through to visualize all structures
-        user_struct = str(x)
-        FE_lines2 = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
-        ttl = FE_lines2.readlines()
-        y = ttl[x - 1]
-        ttl2 = y.split(' ')
-        s_num = ttl2[1]
-        energy = ' '.join(ttl2[4:])
+    for x in range(1, struct_num + 1): # loops through to convert ct to dbn for each structure, and then calculate the respective AUC value. this structure order is temporary and will be resorted by AUC value in the next loop
+        struct_ct_num = str(x)
+        temp_struct_num = 'temp' + str(x)
         # obtain dbn file for specified structure
         # ct2dot converts individual structure in ct to dbn 
-        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" {user_struct} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{user_struct}.dbn')}\"")
+        run(f"{ct2dot_bin_path} \"{os.path.join(ctdir, f'{scrubbed_aoi}.ct')}\" {struct_ct_num} \"{os.path.join(fold_dbndir, f'{scrubbed_aoi}_{temp_struct_num}.dbn')}\"")
         log_timing_and_memory("ct2dot")
 
         # open the new dbn file
-        fold_dbn = open(fold_dbndir + '/' + scrubbed_aoi + '_' + user_struct + '.dbn')
-        # read third line for dbn notation as list
+        fold_dbn_file = open(fold_dbndir + '/' + scrubbed_aoi + '_' + temp_struct_num + '.dbn')
+        # read third line for dbn notation
         # -1 for extra space at the end of line
-        struct1 = fold_dbn.readlines()[2][:-1]
+        fold_dbn = fold_dbn_file.readlines()[2][:-1]
         
         # get dbn binary for AUC calc
-        dbn_binary_string = struct1.replace('(', '0').replace(')', '0').replace('.', '1') 
+        dbn_binary_string = fold_dbn.replace('(', '0').replace(')', '0').replace('.', '1') 
         dbn_binary_list = [int(x) for x in list(dbn_binary_string)] 
         
         RNAstructure['dbn_binary'] = dbn_binary_list
@@ -510,21 +505,45 @@ def main():
         if len(RNAstructure_dataonly) >= 10:
             AUC = round(roc_auc_score(RNAstructure_dataonly['dbn_binary'].astype('bool').to_list(),
                                 RNAstructure_dataonly['D'].to_list()), 3)
-        else:
-            AUC =  np.nan
+            AUC_list.append(AUC)
         
-        AUC_list.append(AUC)
+    for x in range(1, struct_num + 1): #loops through to visualize all structures
+        
+        AUC = AUC_list[x-1]
+        
+        if len(AUC_list) > 0:
+            AUC_struct_num = str(sorted(AUC_list, reverse=True).index(AUC) + 1)
+        
+        else: 
+            AUC_struct_num = str(x)
+        
+        old_struct_num = 'temp' + str(x)
+        
+        os.system('mv ' + fold_dbndir + '/' + scrubbed_aoi + '_' + old_struct_num + '.dbn ' + fold_dbndir + '/' + scrubbed_aoi + '_' + AUC_struct_num + '.dbn')
+        
+        FE_file = open(fold_FEdir + '/' + scrubbed_aoi + '.txt')
+        FE_readlines = FE_file.readlines()
+        current_FE_line = FE_readlines[x - 1]
+        current_FE_line_list = current_FE_line.split(' ')
+        energy = ' '.join(current_FE_line_list[6:])
 
-        # create a lst1 for bases without DMS data (Gs/Ts, low-coverage bases) and lst 2 for bases with valid data (high-cov As/Cs)
+        # open the dbn file from previous loop
+        fold_dbn_file = open(fold_dbndir + '/' + scrubbed_aoi + '_' + AUC_struct_num + '.dbn')
+        # read third line for dbn notation
+        # -1 for extra space at the end of line
+        fold_dbn = fold_dbn_file.readlines()[2][:-1]
+
+
+        # create a lst1 for bases without DMS data (Gs/Ts, low-coverage bases) and lst 2 for bases with valid data (high-cov As/Cs), for colormap purposes
         lst1 = []
         lst2 = []
 
         # iterate though list of individual letters
         for val in range(len(RNAstructure)):
             if RNAstructure['D'][val] == -999: #from fillna earlier
-                lst1.append(val + 1)
+                lst1.append(val + 1) # read by VARNA starting at pos 1
             else:
-                lst2.append(val)
+                lst2.append(val) # used to index df in a moment, so no adding 1 yet 
         # create list low, mid and high for low, mid, and high signal values, for colormap purposes
         low = []
         mid = []
@@ -532,7 +551,7 @@ def main():
         # append each value to their respective lists based on coverage
         for val in lst2:
             if (0.00 <= RNAstructure['D'][val] < 0.25): 
-                low.append(val + 1)
+                low.append(val + 1) # read by VARNA starting at pos 1
             elif (0.25 <= RNAstructure['D'][val] < 0.5):
                 mid.append(val + 1)
             elif (0.5 <= RNAstructure['D'][val] <= 1.0):
@@ -545,8 +564,8 @@ def main():
         from varnaapi import VARNA
         import varnaapi
         varnaapi.set_VARNA(varna_path)
-        v = VARNA(structure=struct1, sequence=seq)
-        style1 = varnaapi.param.BasesStyle(fill="#FFFFFF") # white; bases without data
+        v = VARNA(structure=fold_dbn, sequence=seq)
+        style1 = varnaapi.param.BasesStyle(fill="#FFFFFF") # white; bases without data due to being G/U or due to low coverage
         style2 = varnaapi.param.BasesStyle(fill="#00FFFF") # blue; low signal
         style3 = varnaapi.param.BasesStyle(fill="#FFFF00") # yellow; moderate signal
         style4 = varnaapi.param.BasesStyle(fill="#FF0000") # red; high signal
@@ -555,16 +574,15 @@ def main():
         v.add_bases_style(style3, mid)
         v.add_bases_style(style4, high)
         
-        v.set_title(AOI + ', structure ' + s_num + ', ' + energy + ' kcal/mol, AUC ROC: ' + str(AUC), color='#000000', size=12)
-            
+        v.set_title(AOI + ', ' + energy + ' kcal/mol, AUC: ' + str(AUC), color='#000000', size=12) 
 
-        preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + user_struct + '.svg'
+        preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + AUC_struct_num + '.svg'
         v.savefig(preliminary_figure_path)
 
         fig = sg.fromfile(preliminary_figure_path)
         fig.set_size(('2000', '2000'))
 
-        final_svg_path = final_image + '/' + scrubbed_aoi + '_fold_final_' + user_struct + '.svg'
+        final_svg_path = final_image + '/' + scrubbed_aoi + '_fold_final_' + AUC_struct_num + '.svg'
         fig.save(final_svg_path)
 
         # delete the preliminary figure
@@ -580,7 +598,7 @@ def main():
     auc_file = open(scrubbed_aoi + '_AUCs.txt', 'w')
     if len(AUC_list) > 0:
         for i in range(len(AUC_list)):
-            auc_file.write('Structure ' + str(i + 1) +': ' + str(AUC_list[i]) + '\n')
+            auc_file.write('Structure ' + str(i + 1) +': ' + str(sorted(AUC_list, reverse=True)[i]) + '\n')
     else:
         auc_file.write('AUC ROCs could not be calculated, likely due to lack of coverage in defined region.')
     auc_file.close()
