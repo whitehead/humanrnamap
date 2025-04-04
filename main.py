@@ -502,7 +502,7 @@ def main():
         RNAstructure['dbn_binary'] = dbn_binary_list
         
         RNAstructure_dataonly = RNAstructure.drop(index=RNAstructure[RNAstructure['D'] == -999].index) # only valid datapoints, with their corresponding dbn prediction, used in AUC calc
-        if len(RNAstructure_dataonly) >= 10:
+        if len(RNAstructure_dataonly) >= 10 and len(set(dbn_binary_list)) > 1: #checks for at least 10 data points and that not all the bases are predicted to be unstructured, which would cause an error in the auc function
             AUC = round(roc_auc_score(RNAstructure_dataonly['dbn_binary'].astype('bool').to_list(),
                                 RNAstructure_dataonly['D'].to_list()), 3)
             AUC_list.append(AUC)
