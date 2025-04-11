@@ -5,10 +5,12 @@
     git clone https://github.com/whitehead/humanrnamap
     cd humanrnamap
     ```
-- Download our dataset
+- Download our dataset and move the files into data/
+    https://zenodo.org/records/15198110
+
     ```bash
-    wget -O humanrnamap_dataset.tgz https://zenodo.org/records/15198110
-    tar zxvf humanrnamap_dataset.tgz
+    unzip mutational_profiles.zip
+    mv mutational_profiles/chrom data/chrom
     ```
 
 - Python 3.11 or higher
