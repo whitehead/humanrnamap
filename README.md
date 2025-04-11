@@ -2,13 +2,13 @@
 
 - Clone this repository
     ```bash
-    git clone TODO_URL available_structure
-    cd available_structure
+    git clone https://github.com/whitehead/humanrnamap
+    cd humanrnamap
     ```
 - Download our dataset
     ```bash
-    wget https://zenodo.org/record/5555555/files/available_structure_dataset.tar.gz.EXAMPLE_URL
-    tar xvfz available_structure_dataset.tar.gz 
+    wget -O humanrnamap_dataset.tgz https://zenodo.org/records/15198110
+    tar zxvf humanrnamap_dataset.tgz
     ```
 
 - Python 3.11 or higher
