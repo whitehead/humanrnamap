@@ -6,11 +6,14 @@
     cd humanrnamap
     ```
 - Download our dataset and move the files into data/
-    https://zenodo.org/records/15198110
+    https://zenodo.org/records/15261543
 
     ```bash
     unzip mutational_profiles.zip
     mv mutational_profiles/chrom data/chrom
+    unzip hg38_fasta.zip
+    mv fasta data/fasta
+    mv genename.bed data/genename.bed
     ```
 
 - Python 3.11 or higher
