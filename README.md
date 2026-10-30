@@ -16,7 +16,7 @@
     mv genename.bed data/genename.bed
     ```
 
-- Python 3.11 or higher
+- Python 3.12 or higher (tested on 3.12, 3.13 and 3.15)
 - VARNA
    https://varna.lisn.upsaclay.fr/
    ```bash
