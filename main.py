@@ -479,7 +479,7 @@ def main():
 
     write_messages_to_json(filename = jsondir + '/' + scrubbed_aoi + '.json')
     
-    AUC_list = []
+    AUC_list = [] # one entry per structure, in fold order; None where the AUC can't be calculated
 
     for x in range(1, struct_num + 1): # loops through to convert ct to dbn for each structure, and then calculate the respective AUC value. this structure order is temporary and will be resorted by AUC value in the next loop
         struct_ct_num = str(x)
@@ -505,18 +505,19 @@ def main():
         if len(RNAstructure_dataonly) >= 10 and len(set(dbn_binary_list)) > 1: #checks for at least 10 data points and that not all the bases are predicted to be unstructured, which would cause an error in the auc function
             AUC = round(roc_auc_score(RNAstructure_dataonly['dbn_binary'].astype('bool').to_list(),
                                 RNAstructure_dataonly['D'].to_list()), 3)
-            AUC_list.append(AUC)
-        
+        else:
+            AUC = None
+        AUC_list.append(AUC)
+
+    # rank by AUC, highest first; ties keep fold order, and structures without an AUC follow in fold order
+    ranking = sorted(range(struct_num), key=lambda i: (AUC_list[i] is None, -(AUC_list[i] or 0), i))
+    rank_of = {i: r + 1 for r, i in enumerate(ranking)}
+
     for x in range(1, struct_num + 1): #loops through to visualize all structures
-        
+
         AUC = AUC_list[x-1]
-        
-        if len(AUC_list) > 0:
-            AUC_struct_num = str(sorted(AUC_list, reverse=True).index(AUC) + 1)
-        
-        else: 
-            AUC_struct_num = str(x)
-        
+        AUC_struct_num = str(rank_of[x-1])
+
         old_struct_num = 'temp' + str(x)
         
         os.system('mv ' + fold_dbndir + '/' + scrubbed_aoi + '_' + old_struct_num + '.dbn ' + fold_dbndir + '/' + scrubbed_aoi + '_' + AUC_struct_num + '.dbn')
@@ -574,7 +575,7 @@ def main():
         v.add_bases_style(style3, mid)
         v.add_bases_style(style4, high)
         
-        v.set_title(AOI + ', ' + energy + ' kcal/mol, AUC: ' + str(AUC), color='#000000', size=12) 
+        v.set_title(AOI + ', ' + energy + ' kcal/mol, AUC: ' + ('n/a' if AUC is None else str(AUC)), color='#000000', size=12) 
 
         preliminary_figure_path = final_image + '/' + scrubbed_aoi + '_fold_' + AUC_struct_num + '.svg'
         v.savefig(preliminary_figure_path)
@@ -596,9 +597,10 @@ def main():
     
     os.chdir(aucdir)   
     auc_file = open(scrubbed_aoi + '_AUCs.txt', 'w')
-    if len(AUC_list) > 0:
-        for i in range(len(AUC_list)):
-            auc_file.write('Structure ' + str(i + 1) +': ' + str(sorted(AUC_list, reverse=True)[i]) + '\n')
+    scored_AUCs = sorted((AUC for AUC in AUC_list if AUC is not None), reverse=True)
+    if len(scored_AUCs) > 0:
+        for i in range(len(scored_AUCs)):
+            auc_file.write('Structure ' + str(i + 1) +': ' + str(scored_AUCs[i]) + '\n')
     else:
         auc_file.write('AUC ROCs could not be calculated, likely due to lack of coverage in defined region.')
     auc_file.close()
